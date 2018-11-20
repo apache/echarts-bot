@@ -1,0 +1,237 @@
+{
+   "name":"issues",
+   "id":"836c5da0-e8b2-11e8-8d07-6968c406240b",
+   "payload":{
+      "action":"opened",
+      "issue":{
+         "url":"https://api.github.com/repos/Ovilia/echarts-robot-test/issues/10",
+         "repository_url":"https://api.github.com/repos/Ovilia/echarts-robot-test",
+         "labels_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/issues/10/labels{/name}",
+         "comments_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/issues/10/comments",
+         "events_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/issues/10/events",
+         "html_url":"https://github.com/Ovilia/echarts-robot-test/issues/10",
+         "id":381055099,
+         "node_id":"MDU6SXNzdWUzODEwNTUwOTk=",
+         "number":10,
+         "title":"10",
+         "user":{
+            "login":"Ovilia",
+            "id":779050,
+            "node_id":"MDQ6VXNlcjc3OTA1MA==",
+            "avatar_url":"https://avatars3.githubusercontent.com/u/779050?v=4",
+            "gravatar_id":"",
+            "url":"https://api.github.com/users/Ovilia",
+            "html_url":"https://github.com/Ovilia",
+            "followers_url":"https://api.github.com/users/Ovilia/followers",
+            "following_url":"https://api.github.com/users/Ovilia/following{/other_user}",
+            "gists_url":"https://api.github.com/users/Ovilia/gists{/gist_id}",
+            "starred_url":"https://api.github.com/users/Ovilia/starred{/owner}{/repo}",
+            "subscriptions_url":"https://api.github.com/users/Ovilia/subscriptions",
+            "organizations_url":"https://api.github.com/users/Ovilia/orgs",
+            "repos_url":"https://api.github.com/users/Ovilia/repos",
+            "events_url":"https://api.github.com/users/Ovilia/events{/privacy}",
+            "received_events_url":"https://api.github.com/users/Ovilia/received_events",
+            "type":"User",
+            "site_admin":false
+         },
+         "labels":[
+
+         ],
+         "state":"open",
+         "locked":false,
+         "assignee":null,
+         "assignees":[
+
+         ],
+         "milestone":null,
+         "comments":0,
+         "created_at":"2018-11-15T08:43:23Z",
+         "updated_at":"2018-11-15T08:43:23Z",
+         "closed_at":null,
+         "author_association":"OWNER",
+         "body":"<!--\r\nThanks for choosing ECharts!\r\n感谢使用 ECharts！\r\n\r\nIt's highly recommended to use English in issues, to help others having the same problem in the future.\r\n加入 Apache 开源基金会后，我们有了更多国外的用户。为了方便社区用户，强烈建议在 issue 中使用英文。\r\n\r\nPlease check the following questions to let our bot help.\r\n-->\r\n\r\n<!-- To check the option, add x in [], e.g.: [x] I am using English in this issue. -->\r\n\r\n- [ ] I am using English in this issue.\r\n\r\n\r\n## General Questions\r\n\r\n<!-- BEGINNING OF REQUIRED FIELDS -->\r\n\r\n<!--\r\nPLEASE MAKE SURE OF ALL THE FOLLOWING OPTIONS IN REQUIRED FIELDS ARE TICKED (with x)!\r\nOtherwise the issue will be closed.\r\nAnd think before you tick. :)\r\n-->\r\n- [ ] I have read the document and examples and tried to solve it by myself.\r\n- [ ] I have searched for similar issues and that didn't help.\r\n- [ ] I have tried with the latest version of ECharts and still have this problem.\r\n\r\nIn this issue, I have provided information with:\r\n- [ ] issue type\r\n- [ ] one sentence description in issue details\r\n- [ ] demo if this is bug report\r\n\r\n<!-- END OF REQUIRED FIELDS -->\r\n\r\n\r\n\r\n\r\n\r\n## Issue Type\r\n\r\n<!-- Add `x` for the ones that is true with you, e.g.: [x] I have ... -->\r\n\r\n- [ ] I have a question to ask about *how to use ECharts to ...*\r\n- [ ] I have a bug to report\r\n- [ ] I have a feature to request, e.g.: *I'd like a new feature that ...*\r\n- [ ] I have a feature to enhance, e.g.: *The current feature should be improved in the way that ...*\r\n- [ ] There's something wrong with the documents\r\n- [ ] Others, or I'm not sure which issue types to choose here\r\n\r\n\r\n## Issue Details\r\n\r\n<!-- Use one sentence to describe what you want and what's wrong. -->\r\n\r\n{DESCRIBE_HERE}\r\n\r\n\r\n### Expected Behavior\r\n\r\n<!-- Add screenshots to demo if necessary. -->\r\n\r\n{DESCRIBE_HERE}\r\n\r\n\r\n### Current Behavior\r\n\r\n<!-- Add screenshots to demo if necessary. Otherwise, replace the following line with N/A. -->\r\n\r\n{DESCRIBE_HERE}\r\n\r\n\r\n### Online Example\r\n\r\n<!-- Please use jsfiddle.net or gallery.echartsjs.com to provide a simplest demo to show the problem. And do not upload zip demos. -->\r\n<!-- THIS IS REQUIRED FOR ALL BUG REPORTS AND QUESTIONS!!! -->\r\n\r\n{ADD_LINK_OF_DEMO_HERE}\r\n\r\n<!-- Please make your demo as simple as possible to help locate the problem. And paste only necessary part of code here. -->\r\n\r\n{PASTE_RELATED_CODE_HERE}\r\n\r\n\r\n## Topics\r\n\r\n<!-- Check those topics that are related. -->\r\n- [ ] Legend\r\n- [ ] Tooltip\r\n- [ ] Event\r\n- [ ] Performance\r\n- [ ] SVG\r\n- [ ] Map\r\n- [ ] ECharts GL\r\n- [ ] Third-party libraries, e.g.: Vue.js, React\r\n\r\n\r\n### Anything Else We Need to Know\r\n\r\n<!-- You may reference other issues here. Otherwise, replace the following line with N/A. -->\r\n\r\n{DESCRIBE_HERE}\r\n\r\n\r\n### Environment\r\n\r\n- ECharts version: {DESCRIBE_HERE}\r\n\r\n- [ ] It happens only on certain browsers or operating systems. {BROWSER_VERSION_OR_OS_INFORMATION_HERE}\r\n"
+      },
+      "repository":{
+         "id":157645139,
+         "node_id":"MDEwOlJlcG9zaXRvcnkxNTc2NDUxMzk=",
+         "name":"echarts-robot-test",
+         "full_name":"Ovilia/echarts-robot-test",
+         "private":true,
+         "owner":{
+            "login":"Ovilia",
+            "id":779050,
+            "node_id":"MDQ6VXNlcjc3OTA1MA==",
+            "avatar_url":"https://avatars3.githubusercontent.com/u/779050?v=4",
+            "gravatar_id":"",
+            "url":"https://api.github.com/users/Ovilia",
+            "html_url":"https://github.com/Ovilia",
+            "followers_url":"https://api.github.com/users/Ovilia/followers",
+            "following_url":"https://api.github.com/users/Ovilia/following{/other_user}",
+            "gists_url":"https://api.github.com/users/Ovilia/gists{/gist_id}",
+            "starred_url":"https://api.github.com/users/Ovilia/starred{/owner}{/repo}",
+            "subscriptions_url":"https://api.github.com/users/Ovilia/subscriptions",
+            "organizations_url":"https://api.github.com/users/Ovilia/orgs",
+            "repos_url":"https://api.github.com/users/Ovilia/repos",
+            "events_url":"https://api.github.com/users/Ovilia/events{/privacy}",
+            "received_events_url":"https://api.github.com/users/Ovilia/received_events",
+            "type":"User",
+            "site_admin":false
+         },
+         "html_url":"https://github.com/Ovilia/echarts-robot-test",
+         "description":null,
+         "fork":false,
+         "url":"https://api.github.com/repos/Ovilia/echarts-robot-test",
+         "forks_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/forks",
+         "keys_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/keys{/key_id}",
+         "collaborators_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/collaborators{/collaborator}",
+         "teams_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/teams",
+         "hooks_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/hooks",
+         "issue_events_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/issues/events{/number}",
+         "events_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/events",
+         "assignees_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/assignees{/user}",
+         "branches_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/branches{/branch}",
+         "tags_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/tags",
+         "blobs_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/git/blobs{/sha}",
+         "git_tags_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/git/tags{/sha}",
+         "git_refs_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/git/refs{/sha}",
+         "trees_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/git/trees{/sha}",
+         "statuses_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/statuses/{sha}",
+         "languages_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/languages",
+         "stargazers_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/stargazers",
+         "contributors_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/contributors",
+         "subscribers_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/subscribers",
+         "subscription_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/subscription",
+         "commits_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/commits{/sha}",
+         "git_commits_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/git/commits{/sha}",
+         "comments_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/comments{/number}",
+         "issue_comment_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/issues/comments{/number}",
+         "contents_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/contents/{+path}",
+         "compare_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/compare/{base}...{head}",
+         "merges_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/merges",
+         "archive_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/{archive_format}{/ref}",
+         "downloads_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/downloads",
+         "issues_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/issues{/number}",
+         "pulls_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/pulls{/number}",
+         "milestones_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/milestones{/number}",
+         "notifications_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/notifications{?since,all,participating}",
+         "labels_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/labels{/name}",
+         "releases_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/releases{/id}",
+         "deployments_url":"https://api.github.com/repos/Ovilia/echarts-robot-test/deployments",
+         "created_at":"2018-11-15T03:13:05Z",
+         "updated_at":"2018-11-15T07:57:58Z",
+         "pushed_at":"2018-11-15T07:57:57Z",
+         "git_url":"git://github.com/Ovilia/echarts-robot-test.git",
+         "ssh_url":"git@github.com:Ovilia/echarts-robot-test.git",
+         "clone_url":"https://github.com/Ovilia/echarts-robot-test.git",
+         "svn_url":"https://github.com/Ovilia/echarts-robot-test",
+         "homepage":null,
+         "size":0,
+         "stargazers_count":0,
+         "watchers_count":0,
+         "language":null,
+         "has_issues":true,
+         "has_projects":true,
+         "has_downloads":true,
+         "has_wiki":true,
+         "has_pages":false,
+         "forks_count":0,
+         "mirror_url":null,
+         "archived":false,
+         "open_issues_count":10,
+         "license":null,
+         "forks":0,
+         "open_issues":10,
+         "watchers":0,
+         "default_branch":"master"
+      },
+      "sender":{
+         "login":"Ovilia",
+         "id":779050,
+         "node_id":"MDQ6VXNlcjc3OTA1MA==",
+         "avatar_url":"https://avatars3.githubusercontent.com/u/779050?v=4",
+         "gravatar_id":"",
+         "url":"https://api.github.com/users/Ovilia",
+         "html_url":"https://github.com/Ovilia",
+         "followers_url":"https://api.github.com/users/Ovilia/followers",
+         "following_url":"https://api.github.com/users/Ovilia/following{/other_user}",
+         "gists_url":"https://api.github.com/users/Ovilia/gists{/gist_id}",
+         "starred_url":"https://api.github.com/users/Ovilia/starred{/owner}{/repo}",
+         "subscriptions_url":"https://api.github.com/users/Ovilia/subscriptions",
+         "organizations_url":"https://api.github.com/users/Ovilia/orgs",
+         "repos_url":"https://api.github.com/users/Ovilia/repos",
+         "events_url":"https://api.github.com/users/Ovilia/events{/privacy}",
+         "received_events_url":"https://api.github.com/users/Ovilia/received_events",
+         "type":"User",
+         "site_admin":false
+      },
+      "installation":{
+         "id":455221,
+         "node_id":"MDIzOkludGVncmF0aW9uSW5zdGFsbGF0aW9uNDU1MjIx"
+      }
+   },
+   "github":{
+      "activity":{
+
+      },
+      "apps":{
+
+      },
+      "authorization":{
+
+      },
+      "checks":{
+
+      },
+      "emojis":{
+
+      },
+      "enterprise":{
+
+      },
+      "gists":{
+
+      },
+      "gitdata":{
+
+      },
+      "integrations":{
+
+      },
+      "issues":{
+
+      },
+      "meta":{
+
+      },
+      "migrations":{
+
+      },
+      "misc":{
+
+      },
+      "orgs":{
+
+      },
+      "projects":{
+
+      },
+      "pullRequests":{
+
+      },
+      "reactions":{
+
+      },
+      "repos":{
+
+      },
+      "search":{
+
+      },
+      "teams":{
+
+      },
+      "users":{
+
+      }
+   }
+}
