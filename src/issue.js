@@ -150,7 +150,7 @@ class Issue {
     }
 
     _matches(text) {
-        return this.body.indexOf('- [x] ' + text) > -1;
+        return this.body.indexOf('- [x] Required: ' + text) > -1;
     }
 }
 
