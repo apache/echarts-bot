@@ -14,6 +14,6 @@ function isCoreCommitter(user) {
 }
 
 module.exports = {
-    getCoreCommitters: getCoreCommitters,
-    isCoreCommitter: isCoreCommitter
+    getCoreCommitters,
+    isCoreCommitter
 };

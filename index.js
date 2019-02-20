@@ -1,55 +1,59 @@
 const Issue = require('./src/issue');
 const coreCommitters = require('./src/coreCommitters');
+const {PR_OPENED, PR_MERGED, PR_NOT_MERGED, LABEL_HOWTO, NOT_USING_TEMPLATE} = require('./src/text');
 
 module.exports = app => {
-    app.on(['issues.opened', 'issues.edited'], async context => {
+    app.on(['issues.opened', 'issues.edited', 'issues.reopened'], async context => {
         const issue = new Issue(context);
 
-        if (!issue.isUsingTemplate()) {
-            // Close issue
-            const comment = context.github.issues.createComment(context.issue({
-                body: issue.response
-            }));
+        // Ignore comment because it will commented when adding invalid label
+        const comment = issue.response === NOT_USING_TEMPLATE
+            ? Promise.resolve()
+            : commentIssue(context, issue.response);
 
-            const close = context.github.issues.edit(context.issue({
-                state: 'closed'
-            }));
+        const addLabels = issue.addLabels.length
+            ? context.github.issues.addLabels(context.issue({
+                labels: issue.addLabels
+            }))
+            : Promise.resolve();
 
-            return Promise.all([comment, close]);
+        const removeLabels = issue.removeLabels.length
+            ? context.github.issues.addLabels(context.issue({
+                labels: issue.removeLabels
+            }))
+            : Promise.resolve();
+
+        if (issue.isUsingTemplate()) {
+            return Promise.all([comment, addLabels, removeLabel]);
         }
         else {
-            const addLabels = issue.tags.length
-                ? context.github.issues.addLabels(context.issue({
-                    labels: issue.tags
-                }))
-                : Promise.resolve();
+            return Promise.all([comment, addLabels, removeLabels]);
+        }
+    });
 
-            const removeLabel = getRemoveLabel(
-                context,
-                issue.isMeetAllRequires()
-                    ? 'waiting-for-author'
-                    : 'waiting-for-help'
-            );
+    app.on('issues.labeled', async context => {
+        switch (context.payload.label.name) {
+            case 'invalid':
+                return Promise.all([commentIssue(context, NOT_USING_TEMPLATE), closeIssue(context)]);
 
-            const comment = context.github.issues.createComment(context.issue({
-                body: issue.response
-            }));
-
-            return Promise.all([addLabels, removeLabel, comment]);
+            case 'howto':
+                return Promise.all([commentIssue(context, LABEL_HOWTO), closeIssue(context)]);
         }
     });
 
     app.on('issue_comment.created', async context => {
         const commenter = context.payload.comment.user.login;
-        let removeLabel, addLabel;
-        if (coreCommitters.isCoreCommitter(commenter)) {
+        const isCommenterAuthor = commenter === context.payload.issue.user.login;
+        let removeLabel;
+        let addLabel;
+        if (coreCommitters.isCoreCommitter(commenter) && !isCommenterAuthor) {
             // New comment from core committers
             removeLabel = getRemoveLabel(context, 'waiting-for-help');
             addLabel = context.github.issues.addLabels(context.issue({
                 labels: ['waiting-for-author']
             }));
         }
-        else if (commenter === context.payload.issue.user.login) {
+        else if (isCommenterAuthor) {
             // New comment from issue author
             removeLabel = getRemoveLabel(context, 'waiting-for-author');
             addLabel = context.github.issues.addLabels(context.issue({
@@ -58,6 +62,27 @@ module.exports = app => {
         }
         return Promise.all([removeLabel, addLabel]);
     });
+
+    // Pull Requests Not Tested Yet
+    // app.on(['pull_request.opened', 'pull_request.reopened'], async context => {
+    //     console.log('pull request open');
+    //     const comment = context.github.issues.createComment(context.issue({
+    //         body: PR_OPENED
+    //     }));
+
+    //     return Promise.all([comment]);
+    // });
+
+    // app.on(['pull_request.closed'], async context => {
+    //     console.log('pull request close');
+    //     console.log(context.payload);
+    //     const isMerged = context.payload['pull_request'].merged;
+    //     const comment = context.github.issues.createComment(context.issue({
+    //         body: isMerged ? PR_MERGED : PR_NOT_MERGED
+    //     }));
+
+    //     return Promise.all([comment]);
+    // });
 }
 
 function getRemoveLabel(context, name) {
@@ -67,8 +92,22 @@ function getRemoveLabel(context, name) {
         })
     ).catch(err => {
         // Ignore error caused by not existing.
-        if (err.message !== 'Not Found') {
-            throw(err);
-        }
+        // if (err.message !== 'Not Found') {
+        //     throw(err);
+        // }
     });
+}
+
+function closeIssue(context) {
+    const closeIssue = context.github.issues.edit(context.issue({
+        state: 'closed'
+    }));
+    return closeIssue;
+}
+
+function commentIssue(context, commentText) {
+    const comment = context.github.issues.createComment(context.issue({
+        body: commentText
+    }));
+    return comment;
 }
