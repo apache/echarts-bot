@@ -1,6 +1,6 @@
 const NOT_USING_TEMPLATE =
     `This issue is not created using [issue template](https://ecomfe.github.io/echarts-issue-helper/) so I'm going to close it. 🙊
-Sorry for this, but it helps saving our maintainers' time so that more developers get helped.
+Sorry for this, but it helps save our maintainers' time so that more developers get helped.
 Feel free to create another issue using the issue template.
 
 这个 issue 未使用 [issue 模板](https://ecomfe.github.io/echarts-issue-helper/?lang=zh-cn) 创建，所以我将关闭此 issue。
@@ -14,6 +14,9 @@ The average response time is expected to be within one day for weekdays.
 In the meanwhile, please make sure that **you have posted enough image to demo your request**. You may also check out the [API](http://echarts.apache.org/api.html) and [chart option](http://echarts.apache.org/option.html) to get the answer.
 
 Have a nice day! 🍵`;
+
+const INACTIVE_ISSUE =
+    `This issue is closed due to not being active. Please feel free to open it again (for the author) or create a new one and reference this (for others) if you have further questions.`;
 
 const ISSUE_UPDATED =
     `An update has been made to this issue. The maintainers are right on their way. 🚒`;
@@ -35,7 +38,9 @@ You may send an email to dev-subscribe@echarts.apache.org to subscribe our devel
 const PR_NOT_MERGED = `I'm sorry your PR didn't get merged. Don't get frustrated. Maybe next time. 😛`
 
 const LABEL_HOWTO =
-    `Sorry, but please ask *how-to* questions on [Stack Overflow](https://stackoverflow.com/questions/tagged/echarts). Here's why:
+    `Sorry, but please ask *how-to* questions on [Stack Overflow](https://stackoverflow.com/questions/tagged/echarts) or [segmentfault（中文）](https://segmentfault.com/t/echarts).
+
+Here's why:
 
 Maintaining open source projects, especially popular ones, is [hard work](https://nolanlawson.com/2017/03/05/what-it-feels-like-to-be-an-open-source-maintainer/). As ECharts's user base has grown, we are getting more and more usage questions, bug reports, feature requests and pull requests every single day.
 
@@ -52,6 +57,7 @@ module.exports = {
     NOT_USING_TEMPLATE,
     ISSUE_CREATED,
     ISSUE_UPDATED,
+    INACTIVE_ISSUE,
     PR_OPENED,
     LABEL_HOWTO,
     PR_MERGED,

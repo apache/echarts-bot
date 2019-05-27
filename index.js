@@ -1,9 +1,9 @@
 const Issue = require('./src/issue');
 const coreCommitters = require('./src/coreCommitters');
-const {PR_OPENED, PR_MERGED, PR_NOT_MERGED, LABEL_HOWTO, NOT_USING_TEMPLATE} = require('./src/text');
+const {LABEL_HOWTO, NOT_USING_TEMPLATE, INACTIVE_ISSUE} = require('./src/text');
 
 module.exports = app => {
-    app.on(['issues.opened', 'issues.edited', 'issues.reopened'], async context => {
+    app.on(['issues.opened', 'issues.reopened'], async context => {
         const issue = new Issue(context);
 
         // Ignore comment because it will commented when adding invalid label
@@ -24,7 +24,7 @@ module.exports = app => {
             : Promise.resolve();
 
         if (issue.isUsingTemplate()) {
-            return Promise.all([comment, addLabels, removeLabel]);
+            return Promise.all([comment, addLabels, removeLabels]);
         }
         else {
             return Promise.all([comment, addLabels, removeLabels]);
@@ -38,6 +38,9 @@ module.exports = app => {
 
             case 'howto':
                 return Promise.all([commentIssue(context, LABEL_HOWTO), closeIssue(context)]);
+
+            case 'inactive':
+                return Promise.all([commentIssue(context, INACTIVE_ISSUE), closeIssue(context)]);
         }
     });
 
