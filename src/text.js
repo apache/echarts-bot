@@ -13,6 +13,10 @@ The average response time is expected to be within one day for weekdays.
 
 In the meanwhile, please make sure that **you have posted enough image to demo your request**. You may also check out the [API](http://echarts.apache.org/api.html) and [chart option](http://echarts.apache.org/option.html) to get the answer.
 
+If you don't get helped for a long time (over a week) or have an urgent question to ask, you may also send an email to dev@echarts.apache.org .
+
+If you are interested in the project, you may also subscribe our [mail list](https://echarts.apache.org/en/maillist.html).
+
 Have a nice day! 🍵`;
 
 const INACTIVE_ISSUE =
@@ -38,7 +42,7 @@ You may send an email to dev-subscribe@echarts.apache.org to subscribe our devel
 const PR_NOT_MERGED = `I'm sorry your PR didn't get merged. Don't get frustrated. Maybe next time. 😛`
 
 const LABEL_HOWTO =
-    `Sorry, but please ask *how-to* questions on [Stack Overflow](https://stackoverflow.com/questions/tagged/echarts) or [segmentfault（中文）](https://segmentfault.com/t/echarts).
+    `Sorry, but please ask *how-to* questions on [Stack Overflow](https://stackoverflow.com/questions/tagged/echarts) or [segmentfault（中文）](https://segmentfault.com/t/echarts). You may also send an email about your question to dev@echarts.apache.org if you like.
 
 Here's why:
 
