@@ -3,7 +3,7 @@ const coreCommitters = require('./src/coreCommitters');
 const {LABEL_HOWTO, NOT_USING_TEMPLATE, INACTIVE_ISSUE} = require('./src/text');
 
 module.exports = app => {
-    app.on(['issues.opened', 'issues.reopened'], async context => {
+    app.on(['issues.opened'], async context => {
         const issue = new Issue(context);
 
         // Ignore comment because it will commented when adding invalid label
@@ -23,12 +23,7 @@ module.exports = app => {
             }))
             : Promise.resolve();
 
-        if (issue.isUsingTemplate()) {
-            return Promise.all([comment, addLabels, removeLabels]);
-        }
-        else {
-            return Promise.all([comment, addLabels, removeLabels]);
-        }
+        return Promise.all([comment, addLabels, removeLabels]);
     });
 
     app.on('issues.labeled', async context => {
