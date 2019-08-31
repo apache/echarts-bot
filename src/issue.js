@@ -45,11 +45,11 @@ class Issue {
                 break;
             case 'edited':
                 this.response = ISSUE_UPDATED;
-                this.removeLabels.push('waiting-for-help');
+                this.removeLabels.push('waiting-for: help');
                 break;
         }
 
-        this.addLabels.push('waiting-for-help');
+        this.addLabels.push('waiting-for: help');
         this.addLabels.push('pending');
         this.addLabels.push(this.issueType);
 
