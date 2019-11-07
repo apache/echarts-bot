@@ -1,13 +1,13 @@
 const Issue = require('./src/issue');
 const coreCommitters = require('./src/coreCommitters');
-const {LABEL_HOWTO, NOT_USING_TEMPLATE, INACTIVE_ISSUE} = require('./src/text');
+const text = require('./src/text');
 
 module.exports = app => {
     app.on(['issues.opened'], async context => {
         const issue = new Issue(context);
 
         // Ignore comment because it will commented when adding invalid label
-        const comment = issue.response === NOT_USING_TEMPLATE
+        const comment = issue.response === text.NOT_USING_TEMPLATE
             ? Promise.resolve()
             : commentIssue(context, issue.response);
 
@@ -17,25 +17,41 @@ module.exports = app => {
             }))
             : Promise.resolve();
 
-        const removeLabels = issue.removeLabels.length
-            ? context.github.issues.addLabels(context.issue({
-                labels: issue.removeLabels
-            }))
+        const removeLabel = issue.removeLabel
+            ? getRemoveLabel(issue.removeLabel)
             : Promise.resolve();
 
-        return Promise.all([comment, addLabels, removeLabels]);
+        return Promise.all([comment, addLabels, removeLabel]);
     });
 
     app.on('issues.labeled', async context => {
+        var replaceAt = function (comment) {
+            return replaceAll(
+                comment,
+                'AT_ISSUE_AUTHOR',
+                '@' + context.payload.issue.user.login
+            );
+        };
+
+        // console.log(context.payload);
         switch (context.payload.label.name) {
             case 'invalid':
-                return Promise.all([commentIssue(context, NOT_USING_TEMPLATE), closeIssue(context)]);
+                return Promise.all([commentIssue(context, text.NOT_USING_TEMPLATE), closeIssue(context)]);
 
             case 'howto':
-                return Promise.all([commentIssue(context, LABEL_HOWTO), closeIssue(context)]);
+                return Promise.all([commentIssue(context, text.LABEL_HOWTO), closeIssue(context)]);
 
             case 'inactive':
-                return Promise.all([commentIssue(context, INACTIVE_ISSUE), closeIssue(context)]);
+                return Promise.all([commentIssue(context, text.INACTIVE_ISSUE), closeIssue(context)]);
+
+            case 'waiting-for: author':
+                return commentIssue(context, replaceAt(text.ISSUE_TAGGED_WAITING_AUTHOR));
+
+            case 'difficulty: easy':
+                return commentIssue(context, replaceAt(text.ISSUE_TAGGED_EASY));
+
+            case 'priority: high':
+                return commentIssue(context, replaceAt(text.ISSUE_TAGGED_PRIORITY_HIGH));
         }
     });
 
@@ -46,16 +62,13 @@ module.exports = app => {
         let addLabel;
         if (coreCommitters.isCoreCommitter(commenter) && !isCommenterAuthor) {
             // New comment from core committers
-            removeLabel = getRemoveLabel(context, 'waiting-for-help');
-            addLabel = context.github.issues.addLabels(context.issue({
-                labels: ['waiting-for-author']
-            }));
+            removeLabel = getRemoveLabel(context, 'waiting-for: help');
         }
         else if (isCommenterAuthor) {
             // New comment from issue author
-            removeLabel = getRemoveLabel(context, 'waiting-for-author');
+            removeLabel = getRemoveLabel(context, 'waiting-for: author');
             addLabel = context.github.issues.addLabels(context.issue({
-                labels: ['waiting-for-help']
+                labels: ['waiting-for: community']
             }));
         }
         return Promise.all([removeLabel, addLabel]);
@@ -65,7 +78,7 @@ module.exports = app => {
     // app.on(['pull_request.opened', 'pull_request.reopened'], async context => {
     //     console.log('pull request open');
     //     const comment = context.github.issues.createComment(context.issue({
-    //         body: PR_OPENED
+    //         body: text.PR_OPENED
     //     }));
 
     //     return Promise.all([comment]);
@@ -76,7 +89,7 @@ module.exports = app => {
     //     console.log(context.payload);
     //     const isMerged = context.payload['pull_request'].merged;
     //     const comment = context.github.issues.createComment(context.issue({
-    //         body: isMerged ? PR_MERGED : PR_NOT_MERGED
+    //         body: isMerged ? text.PR_MERGED : text.PR_NOT_MERGED
     //     }));
 
     //     return Promise.all([comment]);
@@ -84,7 +97,7 @@ module.exports = app => {
 }
 
 function getRemoveLabel(context, name) {
-    return context.github.issues.deleteLabel(
+    return context.github.issues.removeLabel(
         context.issue({
             name: name
         })
@@ -108,4 +121,8 @@ function commentIssue(context, commentText) {
         body: commentText
     }));
     return comment;
+}
+
+function replaceAll(str, search, replacement) {
+    return str.replace(new RegExp(search, 'g'), replacement);
 }

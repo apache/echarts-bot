@@ -1,4 +1,4 @@
-const {NOT_USING_TEMPLATE, ISSUE_CREATED, ISSUE_UPDATED} = require('./text');
+const text = require('./text');
 
 class Issue {
     constructor(context) {
@@ -7,13 +7,13 @@ class Issue {
         this.body = this.issue.body;
         this.issueType = null;
         this.addLabels = [];
-        this.removeLabels = [];
+        this.removeLabel = null;
 
         if (this.isUsingTemplate()) {
             this.init();
         }
         else {
-            this.response = NOT_USING_TEMPLATE;
+            this.response = text.NOT_USING_TEMPLATE;
             this.addLabels.push('invalid');
         }
     }
@@ -26,7 +26,7 @@ class Issue {
             this.issueType = 'new-feature';
         }
         else {
-            this.response = NOT_USING_TEMPLATE;
+            this.response = text.NOT_USING_TEMPLATE;
             return;
         }
 
@@ -41,15 +41,15 @@ class Issue {
         switch(this.context.payload.action) {
             case 'opened':
             case 'reopened':
-                this.response = ISSUE_CREATED;
+                this.response = text.ISSUE_CREATED;
                 break;
             case 'edited':
-                this.response = ISSUE_UPDATED;
-                this.removeLabels.push('waiting-for: help');
+                this.response = text.ISSUE_UPDATED;
+                this.removeLabel = 'waiting-for: help';
                 break;
         }
 
-        this.addLabels.push('waiting-for: help');
+        this.addLabels.push('waiting-for: community');
         this.addLabels.push('pending');
         this.addLabels.push(this.issueType);
 

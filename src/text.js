@@ -17,7 +17,7 @@ The average response time is expected to be within one day for weekdays.
 
 In the meanwhile, please make sure that **you have posted enough image to demo your request**. You may also check out the [API](http://echarts.apache.org/api.html) and [chart option](http://echarts.apache.org/option.html) to get the answer.
 
-If you don't get helped for a long time (over a week) or have an urgent question to ask, you may also send an email to dev@echarts.apache.org .
+If you don't get helped for a long time (over a week) or have an urgent question to ask, you may also send an email to dev@echarts.apache.org. Please attach the issue link if it's a technical questions.
 
 If you are interested in the project, you may also subscribe our [mail list](https://echarts.apache.org/en/maillist.html).
 
@@ -28,6 +28,20 @@ const INACTIVE_ISSUE =
 
 const ISSUE_UPDATED =
     `An update has been made to this issue. The maintainers are right on their way. 🚒`;
+
+const ISSUE_TAGGED_WAITING_AUTHOR =
+    `This issue is labeled with \`waiting-for: author\`.
+AT_ISSUE_AUTHOR Please give more information to get the help from the community, or close this issue if you think your problem has been fixed.`;
+
+const ISSUE_TAGGED_EASY =
+    `This issue is labeled with \`difficulty: easy\`.
+AT_ISSUE_AUTHOR Would you like to debug it by yourself? This is a quicker way to get your problem fixed. Or you may wait for the community to fix.
+
+Please have a look at [How to debug ECharts](https://github.com/apache/incubator-echarts/blob/master/CONTRIBUTING.md#how-to-debug-echarts) if you'd like to give a try. 🤓`;
+
+const ISSUE_TAGGED_PRIORITY_HIGH =
+    `This issue is labeled with \`priority: high\`, which means it's a frequently asked problem and we will fix it ASAP.`;
+
 
 const PR_OPENED =
     `Thanks for your contribution!
@@ -69,5 +83,8 @@ module.exports = {
     PR_OPENED,
     LABEL_HOWTO,
     PR_MERGED,
-    PR_NOT_MERGED
+    PR_NOT_MERGED,
+    ISSUE_TAGGED_WAITING_AUTHOR,
+    ISSUE_TAGGED_EASY,
+    ISSUE_TAGGED_PRIORITY_HIGH
 };
