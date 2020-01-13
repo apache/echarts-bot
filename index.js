@@ -44,8 +44,8 @@ module.exports = app => {
             case 'inactive':
                 return Promise.all([commentIssue(context, text.INACTIVE_ISSUE), closeIssue(context)]);
 
-            case 'waiting-for: author':
-                return commentIssue(context, replaceAt(text.ISSUE_TAGGED_WAITING_AUTHOR));
+            // case 'waiting-for: author':
+            //     return commentIssue(context, replaceAt(text.ISSUE_TAGGED_WAITING_AUTHOR));
 
             case 'difficulty: easy':
                 return commentIssue(context, replaceAt(text.ISSUE_TAGGED_EASY));
@@ -56,6 +56,12 @@ module.exports = app => {
     });
 
     app.on('issue_comment.created', async context => {
+        const isPr = context.payload.issue.html_url.indexOf('/pull/') > -1;
+        if (isPr) {
+            // Do nothing when pr is commented
+            return;
+        }
+
         const commenter = context.payload.comment.user.login;
         const isCommenterAuthor = commenter === context.payload.issue.user.login;
         let removeLabel;
@@ -75,25 +81,46 @@ module.exports = app => {
     });
 
     // Pull Requests Not Tested Yet
-    // app.on(['pull_request.opened', 'pull_request.reopened'], async context => {
-    //     console.log('pull request open');
-    //     const comment = context.github.issues.createComment(context.issue({
-    //         body: text.PR_OPENED
-    //     }));
+    app.on(['pull_request.opened', 'pull_request.reopened'], async context => {
+        const auth = context.payload.pull_request.author_association;
+        const comment = context.github.issues.createComment(context.issue({
+            body: isCommitter(auth) ? text.PR_OPENED_BY_COMMITTER : text.PR_OPENED
+        }));
 
-    //     return Promise.all([comment]);
-    // });
+        const labelList = ['PR: awaiting review'];
+        if (isCommitter(auth)) {
+            labelList.push('PR: author is committer');
+        }
+        const addLabel = context.github.issues.addLabels(context.issue({
+            labels: labelList
+        }));
 
-    // app.on(['pull_request.closed'], async context => {
-    //     console.log('pull request close');
-    //     console.log(context.payload);
-    //     const isMerged = context.payload['pull_request'].merged;
-    //     const comment = context.github.issues.createComment(context.issue({
-    //         body: isMerged ? text.PR_MERGED : text.PR_NOT_MERGED
-    //     }));
+        const removeLabel = getRemoveLabel(context, 'PR: revision needed');
+        return Promise.all([comment, addLabel, removeLabel]);
+    });
 
-    //     return Promise.all([comment]);
-    // });
+    app.on(['pull_request.closed'], async context => {
+        const isMerged = context.payload['pull_request'].merged;
+        if (isMerged) {
+            const comment = context.github.issues.createComment(context.issue({
+                body: text.PR_MERGED
+            }));
+            return Promise.all([comment]);
+        }
+    });
+
+    app.on(['pull_request_review.submitted'], async context => {
+        if (context.payload.review.state === 'changes_requested'
+            && isCommitter(context.payload.review.author_association)
+        ) {
+            const addLabel = context.github.issues.addLabels(context.issue({
+                labels: ['PR: revision needed']
+            }));
+
+            const removeLabel = getRemoveLabel(context, 'PR: awaiting review');
+            return Promise.all([addLabel, removeLabel]);
+        }
+    });
 }
 
 function getRemoveLabel(context, name) {
@@ -125,4 +152,8 @@ function commentIssue(context, commentText) {
 
 function replaceAll(str, search, replacement) {
     return str.replace(new RegExp(search, 'g'), replacement);
+}
+
+function isCommitter(auth) {
+    return auth === 'COLLABORATOR' || auth === 'MEMBER' || auth === 'OWNER' || auth === 'CONTRIBUTOR';
 }

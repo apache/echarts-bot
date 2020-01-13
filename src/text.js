@@ -45,17 +45,14 @@ const ISSUE_TAGGED_PRIORITY_HIGH =
 
 const PR_OPENED =
     `Thanks for your contribution!
-@Ovilia Please check out this PR.`;
+The community will review it ASAP. In the meanwhile, please checkout [the coding standard](https://echarts.apache.org/en/coding-standard.html) and Wiki about [How to make a pull request](https://github.com/apache/incubator-echarts/wiki/How-to-make-a-pull-request).`;
+
+const PR_OPENED_BY_COMMITTER = PR_OPENED + `
+
+The pull request is marked to be \`PR: author is committer\` because you are a committer of this project.`;
 
 const PR_MERGED =
-    `Congratulations! Your PR has been merged. Thanks for your contribution! 👍
-
-Now you are one of the ECharts contributors. Since we joined the Apache group, you need to assign [ICLA](https://www.apache.org/licenses/icla.pdf) file if this is your first PR.
-Please fill in the PDF and print it, then sign on it and send the scanned file to secretary@apache.org and oviliazhang at gmail.com with the title \`ICLA for incubator-echarts project\`.
-This may be a little tricky, and sorry for the trouble. This is required for the first time your commit is merged in. If you refused, your commit will be backed off.
-
-You may send an email to dev-subscribe@echarts.apache.org to subscribe our developing discussion on mail list.
-`;
+    `Congratulations! Your PR has been merged. Thanks for your contribution! 👍`;
 
 const PR_NOT_MERGED = `I'm sorry your PR didn't get merged. Don't get frustrated. Maybe next time. 😛`
 
@@ -83,6 +80,7 @@ module.exports = {
     PR_OPENED,
     LABEL_HOWTO,
     PR_MERGED,
+    PR_OPENED_BY_COMMITTER,
     PR_NOT_MERGED,
     ISSUE_TAGGED_WAITING_AUTHOR,
     ISSUE_TAGGED_EASY,

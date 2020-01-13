@@ -2,7 +2,10 @@ const committers = [
     'pissang',
     '100pah',
     'Ovilia',
-    'deqingli'
+    'deqingli',
+    'susiwen8',
+    'cuijian-dexter',
+    'SnailSword'
 ];
 
 function getCoreCommitters() {
