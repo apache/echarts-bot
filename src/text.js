@@ -39,6 +39,9 @@ AT_ISSUE_AUTHOR Would you like to debug it by yourself? This is a quicker way to
 
 Please have a look at [How to debug ECharts](https://github.com/apache/incubator-echarts/blob/master/CONTRIBUTING.md#how-to-debug-echarts) if you'd like to give a try. 🤓`;
 
+const MISSING_DEMO =
+    `AT_ISSUE_AUTHOR Please provide a demo for the issue either with https://jsfiddle.net/ovilia/n6xc4df3/ or https://gallery.echartsjs.com/editor.html.`;
+
 const ISSUE_TAGGED_PRIORITY_HIGH =
     `This issue is labeled with \`priority: high\`, which means it's a frequently asked problem and we will fix it ASAP.`;
 
@@ -76,6 +79,7 @@ module.exports = {
     NOT_USING_TEMPLATE,
     ISSUE_CREATED,
     ISSUE_UPDATED,
+    MISSING_DEMO,
     INACTIVE_ISSUE,
     PR_OPENED,
     LABEL_HOWTO,

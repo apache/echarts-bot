@@ -1,5 +1,4 @@
 const Issue = require('./src/issue');
-const coreCommitters = require('./src/coreCommitters');
 const text = require('./src/text');
 
 module.exports = app => {
@@ -33,7 +32,6 @@ module.exports = app => {
             );
         };
 
-        // console.log(context.payload);
         switch (context.payload.label.name) {
             case 'invalid':
                 return Promise.all([commentIssue(context, text.NOT_USING_TEMPLATE), closeIssue(context)]);
@@ -43,6 +41,15 @@ module.exports = app => {
 
             case 'inactive':
                 return Promise.all([commentIssue(context, text.INACTIVE_ISSUE), closeIssue(context)]);
+
+            case 'missing-demo':
+                return Promise.all([
+                    commentIssue(context, replaceAt(text.MISSING_DEMO)),
+                    getRemoveLabel(context, 'waiting-for: community'),
+                    context.github.issues.addLabels(context.issue({
+                        labels: ['waiting-for: author']
+                    }))
+                ]);
 
             // case 'waiting-for: author':
             //     return commentIssue(context, replaceAt(text.ISSUE_TAGGED_WAITING_AUTHOR));
@@ -66,9 +73,9 @@ module.exports = app => {
         const isCommenterAuthor = commenter === context.payload.issue.user.login;
         let removeLabel;
         let addLabel;
-        if (coreCommitters.isCoreCommitter(commenter) && !isCommenterAuthor) {
+        if (isCommitter(context.payload.comment.author_association)) {
             // New comment from core committers
-            removeLabel = getRemoveLabel(context, 'waiting-for: help');
+            removeLabel = getRemoveLabel(context, 'waiting-for: community');
         }
         else if (isCommenterAuthor) {
             // New comment from issue author
@@ -80,8 +87,7 @@ module.exports = app => {
         return Promise.all([removeLabel, addLabel]);
     });
 
-    // Pull Requests Not Tested Yet
-    app.on(['pull_request.opened', 'pull_request.reopened'], async context => {
+    app.on(['pull_request.opened'], async context => {
         const auth = context.payload.pull_request.author_association;
         const comment = context.github.issues.createComment(context.issue({
             body: isCommitter(auth) ? text.PR_OPENED_BY_COMMITTER : text.PR_OPENED
@@ -95,8 +101,15 @@ module.exports = app => {
             labels: labelList
         }));
 
+        return Promise.all([comment, addLabel]);
+    });
+
+    app.on(['pull_request.synchronize'], async context => {
+        const addLabel = context.github.issues.addLabels(context.issue({
+            labels: ['PR: awaiting review']
+        }));
         const removeLabel = getRemoveLabel(context, 'PR: revision needed');
-        return Promise.all([comment, addLabel, removeLabel]);
+        return Promise.all([addLabel, removeLabel]);
     });
 
     app.on(['pull_request.closed'], async context => {
