@@ -113,13 +113,18 @@ module.exports = app => {
     });
 
     app.on(['pull_request.closed'], async context => {
+        const actions = [
+            getRemoveLabel(context, 'PR: revision needed'),
+            getRemoveLabel(context, 'PR: awaiting review')
+        ];
         const isMerged = context.payload['pull_request'].merged;
         if (isMerged) {
             const comment = context.github.issues.createComment(context.issue({
                 body: text.PR_MERGED
             }));
-            return Promise.all([comment]);
+            actions.push(comment);
         }
+        return Promise.all(actions);
     });
 
     app.on(['pull_request_review.submitted'], async context => {
