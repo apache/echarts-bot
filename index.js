@@ -173,5 +173,5 @@ function replaceAll(str, search, replacement) {
 }
 
 function isCommitter(auth) {
-    return auth === 'COLLABORATOR' || auth === 'MEMBER' || auth === 'OWNER' || auth === 'CONTRIBUTOR';
+    return auth === 'COLLABORATOR' || auth === 'MEMBER' || auth === 'OWNER';
 }
