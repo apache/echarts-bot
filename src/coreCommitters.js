@@ -5,7 +5,9 @@ const committers = [
     'deqingli',
     'susiwen8',
     'cuijian-dexter',
-    'SnailSword'
+    'SnailSword',
+    'plainheart',
+    'wf123537200'
 ];
 
 function getCoreCommitters() {
