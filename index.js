@@ -1,5 +1,6 @@
 const Issue = require('./src/issue');
 const text = require('./src/text');
+const isCoreCommitter = require('./src/coreCommitters');
 
 module.exports = app => {
     app.on(['issues.opened'], async context => {
@@ -88,13 +89,14 @@ module.exports = app => {
     });
 
     app.on(['pull_request.opened'], async context => {
-        const auth = context.payload.pull_request.author_association;
+        // const auth = context.payload.pull_request.author_association;
+        const isCore = isCoreCommitter(context.payload.issue.user.login);
         const comment = context.github.issues.createComment(context.issue({
-            body: isCommitter(auth) ? text.PR_OPENED_BY_COMMITTER : text.PR_OPENED
+            body: isCore ? text.PR_OPENED_BY_COMMITTER : text.PR_OPENED
         }));
 
         const labelList = ['PR: awaiting review'];
-        if (isCommitter(auth)) {
+        if (isCore) {
             labelList.push('PR: author is committer');
         }
         const addLabel = context.github.issues.addLabels(context.issue({
