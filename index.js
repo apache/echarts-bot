@@ -90,7 +90,7 @@ module.exports = app => {
 
     app.on(['pull_request.opened'], async context => {
         // const auth = context.payload.pull_request.author_association;
-        const isCore = isCoreCommitter(context.payload.issue.user.login);
+        const isCore = isCoreCommitter(context.payload.pull_request.user.login);
         const comment = context.github.issues.createComment(context.issue({
             body: isCore ? text.PR_OPENED_BY_COMMITTER : text.PR_OPENED
         }));
