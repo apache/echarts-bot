@@ -1,6 +1,6 @@
 const Issue = require('./src/issue');
 const text = require('./src/text');
-const isCoreCommitter = require('./src/coreCommitters');
+const { isCoreCommitter } = require('./src/coreCommitters');
 
 module.exports = app => {
     app.on(['issues.opened'], async context => {
@@ -157,7 +157,7 @@ function getRemoveLabel(context, name) {
 }
 
 function closeIssue(context) {
-    const closeIssue = context.github.issues.edit(context.issue({
+    const closeIssue = context.github.issues.update(context.issue({
         state: 'closed'
     }));
     return closeIssue;
