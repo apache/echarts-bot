@@ -25,7 +25,7 @@ module.exports = app => {
     });
 
     app.on('issues.labeled', async context => {
-        var replaceAt = function (comment) {
+        const replaceAt = function (comment) {
             return replaceAll(
                 comment,
                 'AT_ISSUE_AUTHOR',
@@ -74,7 +74,7 @@ module.exports = app => {
         const isCommenterAuthor = commenter === context.payload.issue.user.login;
         let removeLabel;
         let addLabel;
-        if (isCommitter(context.payload.comment.author_association)) {
+        if (isCoreCommitter(commenter)) {
             // New comment from core committers
             removeLabel = getRemoveLabel(context, 'waiting-for: community');
         }
@@ -89,7 +89,6 @@ module.exports = app => {
     });
 
     app.on(['pull_request.opened'], async context => {
-        // const auth = context.payload.pull_request.author_association;
         const isCore = isCoreCommitter(context.payload.pull_request.user.login);
         const comment = context.github.issues.createComment(context.issue({
             body: isCore ? text.PR_OPENED_BY_COMMITTER : text.PR_OPENED
@@ -131,7 +130,7 @@ module.exports = app => {
 
     app.on(['pull_request_review.submitted'], async context => {
         if (context.payload.review.state === 'changes_requested'
-            && isCommitter(context.payload.review.author_association)
+            && isCoreCommitter(context.payload.review.user.login)
         ) {
             const addLabel = context.github.issues.addLabels(context.issue({
                 labels: ['PR: revision needed']
