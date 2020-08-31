@@ -54,6 +54,9 @@ const PR_OPENED_BY_COMMITTER = PR_OPENED + `
 
 The pull request is marked to be \`PR: author is committer\` because you are a committer of this project.`;
 
+const PR_AWAITING_DOC = `Document changes are required in this PR. Please also make a PR to [apache/incubator-echarts-doc](https://github.com/apache/incubator-echarts-doc) for document changes. When the doc PR is merged, the maintainers will remove the \`PR: awaiting doc\` label.
+`;
+
 const PR_MERGED =
     `Congratulations! Your PR has been merged. Thanks for your contribution! 👍`;
 
@@ -86,6 +89,7 @@ module.exports = {
     PR_MERGED,
     PR_OPENED_BY_COMMITTER,
     PR_NOT_MERGED,
+    PR_AWAITING_DOC,
     ISSUE_TAGGED_WAITING_AUTHOR,
     ISSUE_TAGGED_EASY,
     ISSUE_TAGGED_PRIORITY_HIGH

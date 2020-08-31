@@ -91,19 +91,41 @@ module.exports = app => {
     app.on(['pull_request.opened'], async context => {
         // const auth = context.payload.pull_request.author_association;
         const isCore = isCoreCommitter(context.payload.pull_request.user.login);
-        const comment = context.github.issues.createComment(context.issue({
-            body: isCore ? text.PR_OPENED_BY_COMMITTER : text.PR_OPENED
-        }));
+        let commentText = isCore
+            ? text.PR_OPENED_BY_COMMITTER
+            : text.PR_OPENED;
 
         const labelList = ['PR: awaiting review'];
         if (isCore) {
             labelList.push('PR: author is committer');
         }
+        const content = context.payload.pull_request.body;
+        if (content && content.indexOf('[-] The API has been changed.') > -1) {
+            labelList.push('PR: awaiting doc');
+            commentText += '\n\n' + text.PR_AWAITING_DOC;
+        }
+
+        const comment = context.github.issues.createComment(context.issue({
+            body: commentText
+        }));
+
         const addLabel = context.github.issues.addLabels(context.issue({
             labels: labelList
         }));
 
         return Promise.all([comment, addLabel]);
+    });
+
+    app.on(['pull_request.edited'], async context => {
+        const content = context.payload.pull_request.body;
+        if (content && content.indexOf('[-] The API has been changed.') > -1) {
+            return context.github.issues.addLabels(context.issue({
+                labels: ['PR: awaiting doc']
+            }));
+        }
+        else {
+            return getRemoveLabel(context, 'PR: awaiting doc');
+        }
     });
 
     app.on(['pull_request.synchronize'], async context => {
