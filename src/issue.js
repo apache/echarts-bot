@@ -1,4 +1,5 @@
 const text = require('./text');
+const { isCommitter } = require('./coreCommitters');
 
 class Issue {
     constructor(context) {
@@ -9,7 +10,9 @@ class Issue {
         this.addLabels = [];
         this.removeLabel = null;
 
-        if (this.isUsingTemplate()) {
+        // if author is committer, do not check if using template
+        const isCore = isCommitter(this.issue.author_association, this.issue.user.login);
+        if (isCore || this.isUsingTemplate()) {
             this.init();
         }
         else {

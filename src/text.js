@@ -12,12 +12,12 @@ If you think you have already made your point clear without the template, or you
 如果您认为虽然没有使用模板，但您已经提供了复现问题的充分描述，或者您的问题无法使用模板表达，也可以重新 open 这个 issue。`;
 
 const ISSUE_CREATED =
-    `Hi! We\'ve received your issue and please be patient to get responded. 🎉
+    `Hi! We've received your issue and please be patient to get responded. 🎉
 The average response time is expected to be within one day for weekdays.
 
 In the meanwhile, please make sure that **you have posted enough image to demo your request**. You may also check out the [API](http://echarts.apache.org/api.html) and [chart option](http://echarts.apache.org/option.html) to get the answer.
 
-If you don't get helped for a long time (over a week) or have an urgent question to ask, you may also send an email to dev@echarts.apache.org. Please attach the issue link if it's a technical questions.
+If you don't get helped for a long time (over a week) or have an urgent question to ask, you may also send an email to dev@echarts.apache.org. Please attach the issue link if it's a technical question.
 
 If you are interested in the project, you may also subscribe our [mailing list](https://echarts.apache.org/en/maillist.html).
 

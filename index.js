@@ -1,6 +1,6 @@
 const Issue = require('./src/issue');
 const text = require('./src/text');
-const { isCoreCommitter } = require('./src/coreCommitters');
+const { isCommitter } = require('./src/coreCommitters');
 
 module.exports = app => {
     app.on(['issues.opened'], async context => {
@@ -74,7 +74,7 @@ module.exports = app => {
         const isCommenterAuthor = commenter === context.payload.issue.user.login;
         let removeLabel;
         let addLabel;
-        if (isCoreCommitter(commenter)) {
+        if (isCommitter(context.payload.comment.author_association, commenter) && !isCommenterAuthor) {
             // New comment from core committers
             removeLabel = getRemoveLabel(context, 'waiting-for: community');
         }
@@ -89,7 +89,10 @@ module.exports = app => {
     });
 
     app.on(['pull_request.opened'], async context => {
-        const isCore = isCoreCommitter(context.payload.pull_request.user.login);
+        const isCore = isCommitter(
+            context.payload.pull_request.author_association, 
+            context.payload.pull_request.user.login
+        );
         let commentText = isCore
             ? text.PR_OPENED_BY_COMMITTER
             : text.PR_OPENED;
@@ -152,7 +155,7 @@ module.exports = app => {
 
     app.on(['pull_request_review.submitted'], async context => {
         if (context.payload.review.state === 'changes_requested'
-            && isCoreCommitter(context.payload.review.user.login)
+            && isCommitter(context.payload.review.author_association, context.payload.review.user.login)
         ) {
             const addLabel = context.github.issues.addLabels(context.issue({
                 labels: ['PR: revision needed']
@@ -193,8 +196,4 @@ function commentIssue(context, commentText) {
 
 function replaceAll(str, search, replacement) {
     return str.replace(new RegExp(search, 'g'), replacement);
-}
-
-function isCommitter(auth) {
-    return auth === 'COLLABORATOR' || auth === 'MEMBER' || auth === 'OWNER';
 }
