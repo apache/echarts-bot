@@ -99,7 +99,7 @@ module.exports = app => {
             labelList.push('PR: author is committer');
         }
         const content = context.payload.pull_request.body;
-        if (content && content.indexOf('[-] The API has been changed.') > -1) {
+        if (content && content.indexOf('[x] The API has been changed.') > -1) {
             labelList.push('PR: awaiting doc');
             commentText += '\n\n' + text.PR_AWAITING_DOC;
         }
@@ -117,7 +117,7 @@ module.exports = app => {
 
     app.on(['pull_request.edited'], async context => {
         const content = context.payload.pull_request.body;
-        if (content && content.indexOf('[-] The API has been changed.') > -1) {
+        if (content && content.indexOf('[x] The API has been changed.') > -1) {
             return context.github.issues.addLabels(context.issue({
                 labels: ['PR: awaiting doc']
             }));
