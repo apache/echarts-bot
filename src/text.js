@@ -7,9 +7,9 @@ If you think you have already made your point clear without the template, or you
 
 这个 issue 未使用 [issue 模板](https://ecomfe.github.io/echarts-issue-helper/?lang=zh-cn) 创建，所以我将关闭此 issue。
 为此带来的麻烦我深表歉意，但是请理解这是为了节约社区维护者的时间，以更高效地服务社区的开发者群体。
-如果您愿意，可以请使用 issue 模板重新创建 issue。
+如果您愿意，请使用 issue 模板重新创建 issue。
 
-如果你认为虽然没有使用模板，但你已经提供了复现问题的充分描述，或者你的问题无法使用模板表达，也可以重新 open 这个 issue。`;
+如果您认为虽然没有使用模板，但您已经提供了复现问题的充分描述，或者您的问题无法使用模板表达，也可以重新 open 这个 issue。`;
 
 const ISSUE_CREATED =
     `Hi! We\'ve received your issue and please be patient to get responded. 🎉
@@ -19,7 +19,7 @@ In the meanwhile, please make sure that **you have posted enough image to demo y
 
 If you don't get helped for a long time (over a week) or have an urgent question to ask, you may also send an email to dev@echarts.apache.org. Please attach the issue link if it's a technical questions.
 
-If you are interested in the project, you may also subscribe our [mail list](https://echarts.apache.org/en/maillist.html).
+If you are interested in the project, you may also subscribe our [mailing list](https://echarts.apache.org/en/maillist.html).
 
 Have a nice day! 🍵`;
 
