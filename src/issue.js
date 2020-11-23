@@ -1,6 +1,9 @@
 const text = require('./text');
 const { isCommitter } = require('./coreCommitters');
 
+const REG_CHN_CHAR = /[\u4e00-\u9fa5]/g;
+const MAX_CHN_CHAR_COUNT = 5;
+
 class Issue {
     constructor(context) {
         this.context = context;
@@ -57,13 +60,17 @@ class Issue {
         this.addLabels.push(this.issueType);
 
         const isInEnglish = this._contain('This issue is in English');
-        if (isInEnglish) {
+        if (isInEnglish && !this._isMainlyUsingChinese()) {
             this.addLabels.push('en');
         }
     }
 
     _contain(txt) {
         return this.body.indexOf(txt) > -1;
+    }
+
+    _isMainlyUsingChinese() {
+        return this.body.match(REG_CHN_CHAR).length > MAX_CHN_CHAR_COUNT;
     }
 }
 
