@@ -2,7 +2,7 @@ const Issue = require('./src/issue');
 const text = require('./src/text');
 const { isCommitter } = require('./src/coreCommitters');
 
-module.exports = app => {
+module.exports = ({ app }) => {
     app.on(['issues.opened'], async context => {
         const issue = new Issue(context);
 
