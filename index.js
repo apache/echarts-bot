@@ -12,7 +12,7 @@ module.exports = ({ app }) => {
             : commentIssue(context, issue.response);
 
         const addLabels = issue.addLabels.length
-            ? context.github.issues.addLabels(context.issue({
+            ? context.octokit.issues.addLabels(context.issue({
                 labels: issue.addLabels
             }))
             : Promise.resolve();
@@ -47,7 +47,7 @@ module.exports = ({ app }) => {
                 return Promise.all([
                     commentIssue(context, replaceAt(text.MISSING_DEMO)),
                     getRemoveLabel(context, 'waiting-for: community'),
-                    context.github.issues.addLabels(context.issue({
+                    context.octokit.issues.addLabels(context.issue({
                         labels: ['waiting-for: author']
                     }))
                 ]);
@@ -81,7 +81,7 @@ module.exports = ({ app }) => {
         else if (isCommenterAuthor) {
             // New comment from issue author
             removeLabel = getRemoveLabel(context, 'waiting-for: author');
-            addLabel = context.github.issues.addLabels(context.issue({
+            addLabel = context.octokit.issues.addLabels(context.issue({
                 labels: ['waiting-for: community']
             }));
         }
@@ -107,11 +107,11 @@ module.exports = ({ app }) => {
             commentText += '\n\n' + text.PR_AWAITING_DOC;
         }
 
-        const comment = context.github.issues.createComment(context.issue({
+        const comment = context.octokit.issues.createComment(context.issue({
             body: commentText
         }));
 
-        const addLabel = context.github.issues.addLabels(context.issue({
+        const addLabel = context.octokit.issues.addLabels(context.issue({
             labels: labelList
         }));
 
@@ -121,7 +121,7 @@ module.exports = ({ app }) => {
     app.on(['pull_request.edited'], async context => {
         const content = context.payload.pull_request.body;
         if (content && content.indexOf('[x] The API has been changed.') > -1) {
-            return context.github.issues.addLabels(context.issue({
+            return context.octokit.issues.addLabels(context.issue({
                 labels: ['PR: awaiting doc']
             }));
         }
@@ -131,7 +131,7 @@ module.exports = ({ app }) => {
     });
 
     app.on(['pull_request.synchronize'], async context => {
-        const addLabel = context.github.issues.addLabels(context.issue({
+        const addLabel = context.octokit.issues.addLabels(context.issue({
             labels: ['PR: awaiting review']
         }));
         const removeLabel = getRemoveLabel(context, 'PR: revision needed');
@@ -145,7 +145,7 @@ module.exports = ({ app }) => {
         ];
         const isMerged = context.payload['pull_request'].merged;
         if (isMerged) {
-            const comment = context.github.issues.createComment(context.issue({
+            const comment = context.octokit.issues.createComment(context.issue({
                 body: text.PR_MERGED
             }));
             actions.push(comment);
@@ -157,7 +157,7 @@ module.exports = ({ app }) => {
         if (context.payload.review.state === 'changes_requested'
             && isCommitter(context.payload.review.author_association, context.payload.review.user.login)
         ) {
-            const addLabel = context.github.issues.addLabels(context.issue({
+            const addLabel = context.octokit.issues.addLabels(context.issue({
                 labels: ['PR: revision needed']
             }));
 
@@ -168,7 +168,7 @@ module.exports = ({ app }) => {
 }
 
 function getRemoveLabel(context, name) {
-    return context.github.issues.removeLabel(
+    return context.octokit.issues.removeLabel(
         context.issue({
             name: name
         })
@@ -181,14 +181,14 @@ function getRemoveLabel(context, name) {
 }
 
 function closeIssue(context) {
-    const closeIssue = context.github.issues.update(context.issue({
+    const closeIssue = context.octokit.issues.update(context.issue({
         state: 'closed'
     }));
     return closeIssue;
 }
 
 function commentIssue(context, commentText) {
-    const comment = context.github.issues.createComment(context.issue({
+    const comment = context.octokit.issues.createComment(context.issue({
         body: commentText
     }));
     return comment;
