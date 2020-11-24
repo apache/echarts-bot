@@ -2,7 +2,7 @@ const text = require('./text');
 const { isCommitter } = require('./coreCommitters');
 
 const REG_CHN_CHAR = /[\u4e00-\u9fa5]/g;
-const MAX_CHN_CHAR_COUNT = 5;
+const MAX_CHN_CHAR_COUNT = 8;
 
 class Issue {
     constructor(context) {
@@ -70,7 +70,8 @@ class Issue {
     }
 
     _isMainlyUsingChinese() {
-        return this.body.match(REG_CHN_CHAR).length > MAX_CHN_CHAR_COUNT;
+        return this.title.match(REG_CHN_CHAR).length > MAX_CHN_CHAR_COUNT
+            || this.body.match(REG_CHN_CHAR).length > MAX_CHN_CHAR_COUNT;
     }
 }
 
