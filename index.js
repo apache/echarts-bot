@@ -1,6 +1,7 @@
 const Issue = require('./src/issue');
 const text = require('./src/text');
 const { isCommitter } = require('./src/coreCommitters');
+const logger = require('./src/logger');
 
 module.exports = ({ app }) => {
     app.on(['issues.opened'], async context => {
@@ -164,6 +165,11 @@ module.exports = ({ app }) => {
             const removeLabel = getRemoveLabel(context, 'PR: awaiting review');
             return Promise.all([addLabel, removeLabel]);
         }
+    });
+
+    app.webhooks.onError(error => {
+        logger.error('bot occured an error');
+        logger.error(error);
     });
 }
 
