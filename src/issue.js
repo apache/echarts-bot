@@ -8,6 +8,7 @@ class Issue {
     constructor(context) {
         this.context = context;
         this.issue = context.payload.issue;
+        this.title = this.issue.title;
         this.body = this.issue.body;
         this.issueType = null;
         this.addLabels = [];
@@ -70,8 +71,13 @@ class Issue {
     }
 
     _isMainlyUsingChinese() {
-        return this.title.match(REG_CHN_CHAR).length > MAX_CHN_CHAR_COUNT
-            || this.body.match(REG_CHN_CHAR).length > MAX_CHN_CHAR_COUNT;
+        const titleMatch = this.title.match(REG_CHN_CHAR);
+        // if title is mainly using Chinese, no need to check body
+        if (titleMatch && titleMatch.length > MAX_CHN_CHAR_COUNT) {
+            return true;
+        }
+        const bodyMatch = this.body.match(REG_CHN_CHAR);
+        return bodyMatch && bodyMatch.length > MAX_CHN_CHAR_COUNT;
     }
 }
 
