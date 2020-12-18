@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "ECharts Robot",
   "author": "Ovilia <me@zhangwenli.com> (https://github.com/settings/apps/echarts-robot-dev)",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "repository": "https://github.com/apache/incubator-echarts-bot.git",
   "homepage": "https://github.com/apache/incubator-echarts-bot",
   "keywords": [
@@ -19,7 +19,7 @@
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
-    "probot": "^10.18.0"
+    "probot": "^11.0.1"
   },
   "devDependencies": {
     "jest": "^25.0.0",

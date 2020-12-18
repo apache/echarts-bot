@@ -3,7 +3,7 @@ const text = require('./src/text');
 const { isCommitter } = require('./src/coreCommitters');
 const logger = require('./src/logger');
 
-module.exports = ({ app }) => {
+module.exports = (app) => {
     app.on(['issues.opened'], async context => {
         const issue = new Issue(context);
 
