@@ -1,8 +1,7 @@
 const text = require('./text');
 const { isCommitter } = require('./coreCommitters');
-
-const REG_CHN_CHAR = /[\u4e00-\u9fa5]/g;
-const MAX_CHN_CHAR_COUNT = 8;
+const { removeCodeAndComment } = require('./util')
+const { detectEnglish } = require('./translator')
 
 class Issue {
     constructor(context) {
@@ -61,23 +60,15 @@ class Issue {
         this.addLabels.push(this.issueType);
 
         const isInEnglish = this._contain('This issue is in English');
-        if (isInEnglish && !this._isMainlyUsingChinese()) {
+        if (isInEnglish &&
+            detectEnglish(removeCodeAndComment(this.title)) &&
+            detectEnglish(removeCodeAndComment(this.body))) {
             this.addLabels.push('en');
         }
     }
 
     _contain(txt) {
         return this.body.indexOf(txt) > -1;
-    }
-
-    _isMainlyUsingChinese() {
-        const titleMatch = this.title.match(REG_CHN_CHAR);
-        // if title is mainly using Chinese, no need to check body
-        if (titleMatch && titleMatch.length > MAX_CHN_CHAR_COUNT) {
-            return true;
-        }
-        const bodyMatch = this.body.match(REG_CHN_CHAR);
-        return bodyMatch && bodyMatch.length > MAX_CHN_CHAR_COUNT;
     }
 }
 

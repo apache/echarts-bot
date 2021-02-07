@@ -45,7 +45,6 @@ const MISSING_DEMO =
 const ISSUE_TAGGED_PRIORITY_HIGH =
     `This issue is labeled with \`priority: high\`, which means it's a frequently asked problem and we will fix it ASAP.`;
 
-
 const PR_OPENED =
     `Thanks for your contribution!
 The community will review it ASAP. In the meanwhile, please checkout [the coding standard](https://echarts.apache.org/en/coding-standard.html) and Wiki about [How to make a pull request](https://github.com/apache/incubator-echarts/wiki/How-to-make-a-pull-request).`;
@@ -54,13 +53,12 @@ const PR_OPENED_BY_COMMITTER = PR_OPENED + `
 
 The pull request is marked to be \`PR: author is committer\` because you are a committer of this project.`;
 
-const PR_AWAITING_DOC = `Document changes are required in this PR. Please also make a PR to [apache/incubator-echarts-doc](https://github.com/apache/incubator-echarts-doc) for document changes. When the doc PR is merged, the maintainers will remove the \`PR: awaiting doc\` label.
-`;
+const PR_AWAITING_DOC = `Document changes are required in this PR. Please also make a PR to [apache/incubator-echarts-doc](https://github.com/apache/incubator-echarts-doc) for document changes. When the doc PR is merged, the maintainers will remove the \`PR: awaiting doc\` label.`;
 
 const PR_MERGED =
     `Congratulations! Your PR has been merged. Thanks for your contribution! 👍`;
 
-const PR_NOT_MERGED = `I'm sorry your PR didn't get merged. Don't get frustrated. Maybe next time. 😛`
+const PR_NOT_MERGED = `I'm sorry your PR didn't get merged. Don't get frustrated. Maybe next time. 😛`;
 
 const LABEL_HOWTO =
     `Sorry, but please ask *how-to* questions on [Stack Overflow](https://stackoverflow.com/questions/tagged/echarts) or [segmentfault（中文）](https://segmentfault.com/t/echarts). You may also send an email about your question to dev@echarts.apache.org if you like.
@@ -76,7 +74,9 @@ As a free and open source project, ECharts also has limited maintainer bandwidth
 
 For (1), we have decided to use the GitHub issue lists exclusively for work that has well-defined, actionable goals. Questions and open ended discussions should be posted to mediums that are better suited for them.
 
-For (2), we have found that issues that do not provide proper information upfront usually results in terribly inefficient back-and-forth communication just to extract the basic information needed for actual triaging. This is exactly why we have created this app: to ensure that every issue is created with the necessary information, and to save time on both sides.`
+For (2), we have found that issues that do not provide proper information upfront usually results in terribly inefficient back-and-forth communication just to extract the basic information needed for actual triaging. This is exactly why we have created this app: to ensure that every issue is created with the necessary information, and to save time on both sides.`;
+
+const ISSUE_COMMENT_TRANSLATE_TIP = 'AT_ISSUE_AUTHOR It seems you are not using English, I\'ve helped translate the content automatically. To make your issue understood by more people, we\'d like to suggest using English next time. 🤗';
 
 module.exports = {
     NOT_USING_TEMPLATE,
@@ -92,5 +92,6 @@ module.exports = {
     PR_AWAITING_DOC,
     ISSUE_TAGGED_WAITING_AUTHOR,
     ISSUE_TAGGED_EASY,
-    ISSUE_TAGGED_PRIORITY_HIGH
+    ISSUE_TAGGED_PRIORITY_HIGH,
+    ISSUE_COMMENT_TRANSLATE_TIP
 };

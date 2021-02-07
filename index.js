@@ -91,7 +91,7 @@ module.exports = (app) => {
 
     app.on(['pull_request.opened'], async context => {
         const isCore = isCommitter(
-            context.payload.pull_request.author_association, 
+            context.payload.pull_request.author_association,
             context.payload.pull_request.user.login
         );
         let commentText = isCore
