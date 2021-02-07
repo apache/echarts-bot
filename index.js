@@ -222,13 +222,13 @@ async function commentIssue (context, commentText, needTranslate) {
             translatedBody = res && res.translated;
         }
 
-        if (!isEnBody && body !== translatedBody) {
+        if (!isEnBody && translatedBody && body !== translatedBody) {
             const translateTip = replaceAll(
                 text.ISSUE_COMMENT_TRANSLATE_TIP,
                 'AT_ISSUE_AUTHOR',
                 '@' + context.payload.issue.user.login
             );
-            const translateComment = `${translateTip}<details><summary>TRANSLATED</summary>${!isEnTitle && title !== translatedTitle ? '\n\n**TITLE**\n\n' + translatedTitle : ''}\n\n**BODY**\n\n${translatedBody}</details>`;
+            const translateComment = `${translateTip}<details><summary>TRANSLATED</summary>${!isEnTitle && translatedTitle && title !== translatedTitle ? '\n\n**TITLE**\n\n' + translatedTitle : ''}\n\n**BODY**\n\n${translatedBody}</details>`;
             await context.octokit.issues.createComment(
                 context.issue({
                     body: translateComment
