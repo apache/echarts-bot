@@ -1,15 +1,17 @@
 {
   "name": "echarts-robot",
   "version": "1.0.0",
-  "description": "ECharts Robot",
+  "description": "Apache ECharts Robot",
   "author": "Ovilia <me@zhangwenli.com> (https://github.com/settings/apps/echarts-robot-dev)",
   "license": "Apache-2.0",
-  "repository": "https://github.com/apache/incubator-echarts-bot.git",
-  "homepage": "https://github.com/apache/incubator-echarts-bot",
+  "repository": "https://github.com/apache/echarts-bot.git",
+  "homepage": "https://github.com/apache/echarts-bot",
   "keywords": [
     "probot",
     "github",
-    "probot-app"
+    "probot-app",
+    "echarts",
+    "apache"
   ],
   "scripts": {
     "dev": "nodemon",
@@ -19,7 +21,7 @@
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
-    "probot": "^11.0.4"
+    "probot": "^11.0.6"
   },
   "devDependencies": {
     "jest": "^25.0.0",

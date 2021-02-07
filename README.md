@@ -1,6 +1,6 @@
-# echarts-robot
+# Apache ECharts Robot
 
-A robot for ECharts issues.
+A robot for Apache ECharts issues and pull requests.
 
 ## Setup
 
