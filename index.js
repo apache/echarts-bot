@@ -2,6 +2,8 @@ const Issue = require('./src/issue');
 const text = require('./src/text');
 const { isCommitter } = require('./src/coreCommitters');
 const logger = require('./src/logger');
+const translator = require('./src/translator');
+const { replaceAll, removeCodeAndComment } = require('./src/util');
 
 module.exports = (app) => {
     app.on(['issues.opened'], async context => {
@@ -10,7 +12,7 @@ module.exports = (app) => {
         // Ignore comment because it will commented when adding invalid label
         const comment = issue.response === text.NOT_USING_TEMPLATE
             ? Promise.resolve()
-            : commentIssue(context, issue.response);
+            : commentIssue(context, issue.response, issue.response === text.ISSUE_CREATED)
 
         const addLabels = issue.addLabels.length
             ? context.octokit.issues.addLabels(context.issue({
@@ -193,13 +195,45 @@ function closeIssue(context) {
     return closeIssue;
 }
 
-function commentIssue(context, commentText) {
-    const comment = context.octokit.issues.createComment(context.issue({
+async function commentIssue (context, commentText, needTranslate) {
+    // create comment
+    await context.octokit.issues.createComment(context.issue({
         body: commentText
     }));
-    return comment;
-}
 
-function replaceAll(str, search, replacement) {
-    return str.replace(new RegExp(search, 'g'), replacement);
+    // translate the issue if needed
+    if (needTranslate) {
+        let { title, body } = context.payload.issue;
+        title = removeCodeAndComment(title);
+        body = removeCodeAndComment(body);
+
+        const isEnTitle = translator.detectEnglish(title);
+        const isEnBody = translator.detectEnglish(body);
+
+        let translatedTitle;
+        let translatedBody;
+
+        if (!isEnTitle) {
+            const res = await translator.translate(title);
+            translatedTitle = res && res.translated;
+        }
+        if (!isEnBody) {
+            const res = await translator.translate(body);
+            translatedBody = res && res.translated;
+        }
+
+        if (!isEnBody && body !== translatedBody) {
+            const translateTip = replaceAll(
+                text.ISSUE_COMMENT_TRANSLATE_TIP,
+                'AT_ISSUE_AUTHOR',
+                '@' + context.payload.issue.user.login
+            );
+            const translateComment = `${translateTip}<details><summary>TRANSLATED</summary>${!isEnTitle && title !== translatedTitle ? '\n\n**TITLE**\n\n' + translatedTitle : ''}\n\n**BODY**\n\n${translatedBody}</details>`;
+            await context.octokit.issues.createComment(
+                context.issue({
+                    body: translateComment
+                })
+            );
+        }
+    }
 }
