@@ -1,5 +1,5 @@
-const { removeCodeAndComment } = require('../src/util')
-const { detectEnglish } = require('../src/translator')
+const { removeCodeAndComment } = require('../src/util');
+const { detectEnglish } = require('../src/translator');
 
 const str = `
 ### What problem does this feature solve?
