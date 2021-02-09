@@ -226,7 +226,7 @@ async function commentIssue(context, commentText, needTranslate) {
             translatedBody = res && res.translated;
         }
 
-        if (!isEnTitle || !isEnBody) {
+        if ((!isEnTitle || !isEnBody) && (translatedTitle || translatedBody)) {
             const translateTip = replaceAll(
                 text.ISSUE_COMMENT_TRANSLATE_TIP,
                 'AT_ISSUE_AUTHOR',
