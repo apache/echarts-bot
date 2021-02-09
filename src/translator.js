@@ -15,7 +15,7 @@ async function translate(rawContent) {
             rawContent,
             {
                 to: 'en',
-                tld: 'cn'
+                // tld: 'cn'
             }
         );
         return {
