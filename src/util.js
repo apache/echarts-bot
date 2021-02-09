@@ -1,6 +1,6 @@
 function removeCodeAndComment(body) {
 	return body
-		.replace(/<!--[\w\W\s]*?-->/gmi, '')
+        .replace(/<!--[\w\W\s]*?-->/gmi, '')
         .replace(/`{3}(.|\n)*`{3}/gmi, '')
         .replace(/#.*\s?/g, '')
         .replace(/-{3}\s?/g, '');

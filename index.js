@@ -201,7 +201,7 @@ async function commentIssue(context, commentText, needTranslate) {
         body: commentText
     }));
 
-    logger.info('issue needs translation: ' + needTranslate)
+    logger.info('issue needs translation: ' + needTranslate);
 
     // translate the issue if needed
     if (needTranslate) {
@@ -238,7 +238,7 @@ async function commentIssue(context, commentText, needTranslate) {
                     body: translateComment
                 })
             );
-            logger.info(`issue translated - ${Date.now() - startTime}ms`)
+            logger.info(`issue translated - ${Date.now() - startTime}ms`);
         }
     }
 }
