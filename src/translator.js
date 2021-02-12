@@ -41,14 +41,30 @@ function detectLanguage(text, detectAll) {
     return detectAll ? franc.all(text) : franc(text);
 }
 
+/**
+ * To detect English by franc
+ *
+ * FIXME: Not accurate enough
+ */
 function detectEnglish(text) {
     const lang = detectLanguage(text, true);
     return lang[0][0] === 'eng'
         && (!lang[1] || (lang[1][0] === 'sco' && lang[1][1] > 0.9) || lang[1][1] < 0.9);
 }
 
+/**
+ * To detect English by Google Translate
+ *
+ * FIXME: Accurate enough but it requires network requests.
+ */
+async function detectEnglishByGoogle(text) {
+    const res = await translate(text);
+    return res && res.lang === 'en';
+}
+
 module.exports = {
     translate,
     detectLanguage,
-    detectEnglish
+    detectEnglish,
+    detectEnglishByGoogle
 }

@@ -211,22 +211,35 @@ async function commentIssue(context, commentText, needTranslate) {
         const filteredTitle = removeCodeAndComment(title);
         const filteredBody = removeCodeAndComment(body);
 
-        const isEnTitle = translator.detectEnglish(filteredTitle);
-        const isEnBody = translator.detectEnglish(filteredBody);
+        let isEnTitle = translator.detectEnglish(filteredTitle);
+        let isEnBody = translator.detectEnglish(filteredBody);
 
         let translatedTitle;
         let translatedBody;
 
+        // if the franc has detected it's English, so no need to translate it.
         if (!isEnTitle) {
             const res = await translator.translate(title);
-            translatedTitle = res && res.translated;
+            if (res) {
+                // determine if it's English according to the detected language by Google Translate
+                isEnTitle = res.lang === 'en';
+                translatedTitle = !isEnTitle && res.translated;
+            }
         }
         if (!isEnBody) {
             const res = await translator.translate(body);
-            translatedBody = res && res.translated;
+            if (res) {
+                isEnBody = res.lang === 'en';
+                translatedBody = !isEnBody && res.translated;
+            }
         }
 
-        if ((!isEnTitle || !isEnBody) && (translatedTitle || translatedBody)) {
+        if ((!isEnTitle || !isEnBody)
+            && (
+                (translatedTitle && translatedTitle !== title)
+                || (translatedBody && translatedBody !== body)
+            )
+        ) {
             const translateTip = replaceAll(
                 text.ISSUE_COMMENT_TRANSLATE_TIP,
                 'AT_ISSUE_AUTHOR',
