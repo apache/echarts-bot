@@ -48,8 +48,9 @@ function detectLanguage(text, detectAll) {
  */
 function detectEnglish(text) {
     const lang = detectLanguage(text, true);
-    return lang[0][0] === 'eng'
-        && (!lang[1] || (lang[1][0] === 'sco' && lang[1][1] > 0.9) || lang[1][1] < 0.9);
+    return (lang[0][0] === 'eng' && lang[0][1] === 1)
+        || (lang[0][0] === 'eng'
+            && (!lang[1] || (lang[1][0] === 'sco' && lang[1][1] > 0.9) || lang[1][1] < 0.9));
 }
 
 /**
