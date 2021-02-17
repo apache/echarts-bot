@@ -1,5 +1,5 @@
 const googleTranslate = require('@vitalets/google-translate-api');
-const franc = require('franc');
+const franc = require('franc-min');
 
 /**
  * To translate the raw sentence to English
