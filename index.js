@@ -1,18 +1,21 @@
 const Issue = require('./src/issue');
 const text = require('./src/text');
-const { isCoreCommitter } = require('./src/coreCommitters');
+const { isCommitter } = require('./src/coreCommitters');
+const logger = require('./src/logger');
+const translator = require('./src/translator');
+const { replaceAll, removeCodeAndComment } = require('./src/util');
 
-module.exports = app => {
+module.exports = (app) => {
     app.on(['issues.opened'], async context => {
         const issue = new Issue(context);
 
         // Ignore comment because it will commented when adding invalid label
         const comment = issue.response === text.NOT_USING_TEMPLATE
             ? Promise.resolve()
-            : commentIssue(context, issue.response);
+            : commentIssue(context, issue.response, issue.response === text.ISSUE_CREATED)
 
         const addLabels = issue.addLabels.length
-            ? context.github.issues.addLabels(context.issue({
+            ? context.octokit.issues.addLabels(context.issue({
                 labels: issue.addLabels
             }))
             : Promise.resolve();
@@ -25,7 +28,7 @@ module.exports = app => {
     });
 
     app.on('issues.labeled', async context => {
-        var replaceAt = function (comment) {
+        const replaceAt = function (comment) {
             return replaceAll(
                 comment,
                 'AT_ISSUE_AUTHOR',
@@ -47,7 +50,7 @@ module.exports = app => {
                 return Promise.all([
                     commentIssue(context, replaceAt(text.MISSING_DEMO)),
                     getRemoveLabel(context, 'waiting-for: community'),
-                    context.github.issues.addLabels(context.issue({
+                    context.octokit.issues.addLabels(context.issue({
                         labels: ['waiting-for: author']
                     }))
                 ]);
@@ -74,14 +77,14 @@ module.exports = app => {
         const isCommenterAuthor = commenter === context.payload.issue.user.login;
         let removeLabel;
         let addLabel;
-        if (isCommitter(context.payload.comment.author_association)) {
+        if (isCommitter(context.payload.comment.author_association, commenter) && !isCommenterAuthor) {
             // New comment from core committers
             removeLabel = getRemoveLabel(context, 'waiting-for: community');
         }
         else if (isCommenterAuthor) {
             // New comment from issue author
             removeLabel = getRemoveLabel(context, 'waiting-for: author');
-            addLabel = context.github.issues.addLabels(context.issue({
+            addLabel = context.octokit.issues.addLabels(context.issue({
                 labels: ['waiting-for: community']
             }));
         }
@@ -89,8 +92,10 @@ module.exports = app => {
     });
 
     app.on(['pull_request.opened'], async context => {
-        // const auth = context.payload.pull_request.author_association;
-        const isCore = isCoreCommitter(context.payload.pull_request.user.login);
+        const isCore = isCommitter(
+            context.payload.pull_request.author_association,
+            context.payload.pull_request.user.login
+        );
         let commentText = isCore
             ? text.PR_OPENED_BY_COMMITTER
             : text.PR_OPENED;
@@ -105,11 +110,11 @@ module.exports = app => {
             commentText += '\n\n' + text.PR_AWAITING_DOC;
         }
 
-        const comment = context.github.issues.createComment(context.issue({
+        const comment = context.octokit.issues.createComment(context.issue({
             body: commentText
         }));
 
-        const addLabel = context.github.issues.addLabels(context.issue({
+        const addLabel = context.octokit.issues.addLabels(context.issue({
             labels: labelList
         }));
 
@@ -119,7 +124,7 @@ module.exports = app => {
     app.on(['pull_request.edited'], async context => {
         const content = context.payload.pull_request.body;
         if (content && content.indexOf('[x] The API has been changed.') > -1) {
-            return context.github.issues.addLabels(context.issue({
+            return context.octokit.issues.addLabels(context.issue({
                 labels: ['PR: awaiting doc']
             }));
         }
@@ -129,7 +134,7 @@ module.exports = app => {
     });
 
     app.on(['pull_request.synchronize'], async context => {
-        const addLabel = context.github.issues.addLabels(context.issue({
+        const addLabel = context.octokit.issues.addLabels(context.issue({
             labels: ['PR: awaiting review']
         }));
         const removeLabel = getRemoveLabel(context, 'PR: revision needed');
@@ -143,7 +148,7 @@ module.exports = app => {
         ];
         const isMerged = context.payload['pull_request'].merged;
         if (isMerged) {
-            const comment = context.github.issues.createComment(context.issue({
+            const comment = context.octokit.issues.createComment(context.issue({
                 body: text.PR_MERGED
             }));
             actions.push(comment);
@@ -153,9 +158,9 @@ module.exports = app => {
 
     app.on(['pull_request_review.submitted'], async context => {
         if (context.payload.review.state === 'changes_requested'
-            && isCommitter(context.payload.review.author_association)
+            && isCommitter(context.payload.review.author_association, context.payload.review.user.login)
         ) {
-            const addLabel = context.github.issues.addLabels(context.issue({
+            const addLabel = context.octokit.issues.addLabels(context.issue({
                 labels: ['PR: revision needed']
             }));
 
@@ -163,10 +168,15 @@ module.exports = app => {
             return Promise.all([addLabel, removeLabel]);
         }
     });
+
+    app.webhooks.onError(error => {
+        logger.error('bot occured an error');
+        logger.error(error);
+    });
 }
 
 function getRemoveLabel(context, name) {
-    return context.github.issues.removeLabel(
+    return context.octokit.issues.removeLabel(
         context.issue({
             name: name
         })
@@ -179,23 +189,69 @@ function getRemoveLabel(context, name) {
 }
 
 function closeIssue(context) {
-    const closeIssue = context.github.issues.update(context.issue({
+    const closeIssue = context.octokit.issues.update(context.issue({
         state: 'closed'
     }));
     return closeIssue;
 }
 
-function commentIssue(context, commentText) {
-    const comment = context.github.issues.createComment(context.issue({
+async function commentIssue(context, commentText, needTranslate) {
+    // create comment
+    await context.octokit.issues.createComment(context.issue({
         body: commentText
     }));
-    return comment;
-}
 
-function replaceAll(str, search, replacement) {
-    return str.replace(new RegExp(search, 'g'), replacement);
-}
+    logger.info('issue needs translation: ' + needTranslate);
 
-function isCommitter(auth) {
-    return auth === 'COLLABORATOR' || auth === 'MEMBER' || auth === 'OWNER';
+    // translate the issue if needed
+    if (needTranslate) {
+        const startTime = Date.now();
+
+        const { title, body } = context.payload.issue;
+        const filteredTitle = removeCodeAndComment(title);
+        const filteredBody = removeCodeAndComment(body);
+
+        let isEnTitle = translator.detectEnglish(filteredTitle);
+        let isEnBody = translator.detectEnglish(filteredBody);
+
+        let translatedTitle;
+        let translatedBody;
+
+        // if the franc has detected it's English, so no need to translate it.
+        if (!isEnTitle) {
+            const res = await translator.translate(title);
+            if (res) {
+                // determine if it's English according to the detected language by Google Translate
+                isEnTitle = res.lang === 'en';
+                translatedTitle = !isEnTitle && res.translated;
+            }
+        }
+        if (!isEnBody) {
+            const res = await translator.translate(body);
+            if (res) {
+                isEnBody = res.lang === 'en';
+                translatedBody = !isEnBody && res.translated;
+            }
+        }
+
+        if ((!isEnTitle || !isEnBody)
+            && (
+                (translatedTitle && translatedTitle !== title)
+                || (translatedBody && translatedBody !== body)
+            )
+        ) {
+            const translateTip = replaceAll(
+                text.ISSUE_COMMENT_TRANSLATE_TIP,
+                'AT_ISSUE_AUTHOR',
+                '@' + context.payload.issue.user.login
+            );
+            const translateComment = `${translateTip}\n<details><summary><b>TRANSLATED</b></summary><br>${!isEnTitle && translatedTitle && title !== translatedTitle ? '\n\n**TITLE**\n\n' + translatedTitle : ''}${!isEnBody && translatedBody && body !== translatedBody ? '\n\n**BODY**\n\n' + translatedBody : ''}\n</details>`;
+            await context.octokit.issues.createComment(
+                context.issue({
+                    body: translateComment
+                })
+            );
+            logger.info(`issue translated - ${Date.now() - startTime}ms`);
+        }
+    }
 }

@@ -1,15 +1,21 @@
 const text = require('./text');
+const { isCommitter } = require('./coreCommitters');
+const { removeCodeAndComment } = require('./util')
+const { detectEnglish } = require('./translator')
 
 class Issue {
     constructor(context) {
         this.context = context;
         this.issue = context.payload.issue;
+        this.title = this.issue.title;
         this.body = this.issue.body;
         this.issueType = null;
         this.addLabels = [];
         this.removeLabel = null;
 
-        if (this.isUsingTemplate()) {
+        // if author is committer, do not check if using template
+        const isCore = isCommitter(this.issue.author_association, this.issue.user.login);
+        if (isCore || this.isUsingTemplate()) {
             this.init();
         }
         else {
@@ -54,7 +60,9 @@ class Issue {
         this.addLabels.push(this.issueType);
 
         const isInEnglish = this._contain('This issue is in English');
-        if (isInEnglish) {
+        if (isInEnglish &&
+            detectEnglish(removeCodeAndComment(this.title)) &&
+            detectEnglish(removeCodeAndComment(this.body))) {
             this.addLabels.push('en');
         }
     }

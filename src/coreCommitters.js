@@ -23,7 +23,12 @@ function isCoreCommitter(user) {
     return committers.indexOf(user) > -1;
 }
 
+function isCommitter(auth, user) {
+    return auth === 'COLLABORATOR' || auth === 'MEMBER' || auth === 'OWNER' || isCoreCommitter(user);
+}
+
 module.exports = {
     getCoreCommitters,
-    isCoreCommitter
+    isCoreCommitter,
+    isCommitter
 };
