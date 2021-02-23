@@ -2,7 +2,7 @@ const Issue = require('./src/issue');
 const text = require('./src/text');
 const { isCommitter } = require('./src/coreCommitters');
 const logger = require('./src/logger');
-const { replaceAll } = require('./src/util');
+const { replaceAll, removeHTMLComment } = require('./src/util');
 
 module.exports = (app) => {
     app.on(['issues.opened'], async context => {
@@ -238,7 +238,7 @@ async function translateIssue (context, createdIssue) {
     } = createdIssue;
 
     const titleNeedsTranslation = translatedTitle && translatedTitle[0] !== title;
-    const bodyNeedsTranslation = translatedBody && translatedBody[0] !== body;
+    const bodyNeedsTranslation = translatedBody && translatedBody[0] !== removeHTMLComment(body);
     const needsTranslation = titleNeedsTranslation || bodyNeedsTranslation;
 
     logger.info('issue needs translation: ' + needsTranslation);
