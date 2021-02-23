@@ -1,7 +1,6 @@
 const text = require('./text');
 const { isCommitter } = require('./coreCommitters');
-const { removeCodeAndComment } = require('./util')
-const { detectEnglish } = require('./translator')
+const { translate } = require('./translator');
 
 class Issue {
     constructor(context) {
@@ -9,34 +8,63 @@ class Issue {
         this.issue = context.payload.issue;
         this.title = this.issue.title;
         this.body = this.issue.body;
+        // null -> failed to translate -> unknown language
+        // false -> translated -> not in English
+        this.translatedTitle = null;
+        this.translatedBody = null;
         this.issueType = null;
+        this.response = null;
         this.addLabels = [];
         this.removeLabel = null;
+    }
 
+    async init () {
         // if author is committer, do not check if using template
         const isCore = isCommitter(this.issue.author_association, this.issue.user.login);
         if (isCore || this.isUsingTemplate()) {
-            this.init();
-        }
-        else {
+            if (this._contain('Steps to reproduce')) {
+                this.issueType = 'bug';
+            } else if (this._contain('What problem does this feature solve')) {
+                this.issueType = 'new-feature';
+            } else if (!isCore) {
+                this.response = text.NOT_USING_TEMPLATE;
+                return;
+            }
+
+            if (!isCore) {
+                this.addLabels.push('pending');
+                this.addLabels.push('waiting-for: community');
+            }
+
+            this.issueType && this.addLabels.push(this.issueType);
+
+            // translate issue
+            await this._translate();
+
+            // const isInEnglish = this._contain('This issue is in English');
+            const isInEnglish = (!this.translatedTitle && !this.translatedBody)
+              || (!this.title.trim() && !this.translatedBody)
+              || (!this.body.trim() && !this.translatedTitle);
+            if (isInEnglish) {
+                this.addLabels.push('en');
+            }
+
+            isCore || this._computeResponse();
+        } else {
             this.response = text.NOT_USING_TEMPLATE;
             this.addLabels.push('invalid');
         }
     }
 
-    init() {
-        if (this._contain('Steps to reproduce')) {
-            this.issueType = 'bug';
+    async _translate () {
+        let res = await translate(this.title);
+        if (res) {
+            this.translatedTitle = res.lang !== 'en' && [res.translated, res.lang];
         }
-        else if (this._contain('What problem does this feature solve')) {
-            this.issueType = 'new-feature';
+        res = await translate(this.body);
+        if (res) {
+            this.translatedBody = res.lang !== 'en' && [res.translated, res.lang];
         }
-        else {
-            this.response = text.NOT_USING_TEMPLATE;
-            return;
-        }
-
-        this._computeResponse();
     }
 
     isUsingTemplate() {
@@ -53,17 +81,6 @@ class Issue {
                 this.response = text.ISSUE_UPDATED;
                 this.removeLabel = 'waiting-for: help';
                 break;
-        }
-
-        this.addLabels.push('waiting-for: community');
-        this.addLabels.push('pending');
-        this.addLabels.push(this.issueType);
-
-        const isInEnglish = this._contain('This issue is in English');
-        if (isInEnglish &&
-            detectEnglish(removeCodeAndComment(this.title)) &&
-            detectEnglish(removeCodeAndComment(this.body))) {
-            this.addLabels.push('en');
         }
     }
 
