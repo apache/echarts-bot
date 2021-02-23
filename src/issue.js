@@ -40,7 +40,7 @@ class Issue {
             this.issueType && this.addLabels.push(this.issueType);
 
             // translate issue
-            await this._translate();
+            isCore || await this._translate();
 
             // const isInEnglish = this._contain('This issue is in English');
             const isInEnglish = (!this.translatedTitle && !this.translatedBody)
