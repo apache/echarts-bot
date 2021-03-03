@@ -196,6 +196,7 @@ module.exports = (app) => {
         }
     });
 
+    // it can be app.onError since v11.1.0
     app.webhooks.onError(error => {
         logger.error('bot occured an error');
         logger.error(error);
