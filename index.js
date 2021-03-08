@@ -119,10 +119,15 @@ module.exports = (app) => {
         if (isCore) {
             labelList.push('PR: author is committer');
         }
+
         const content = context.payload.pull_request.body;
         if (content && content.indexOf('[x] The API has been changed.') > -1) {
             labelList.push('PR: awaiting doc');
             commentText += '\n\n' + text.PR_AWAITING_DOC;
+        }
+
+        if (await isFirstTimeContributor(context)) {
+            labelList.push('PR: first-time contributor');
         }
 
         const comment = context.octokit.issues.createComment(
@@ -232,6 +237,22 @@ function commentIssue(context, commentText) {
             body: commentText
         })
     );
+}
+
+async function isFirstTimeContributor (context) {
+    try {
+        const response = await context.octokit.issues.listForRepo(
+            context.repo({
+                state: 'all',
+                creator: context.payload.pull_request.user.login
+            })
+        );
+        return response.data.filter(data => data.pull_request) === 1;
+    }
+    catch (e) {
+        logger.error('failed to check first-time contributor');
+        logger.error(e);
+    }
 }
 
 async function translateIssue (context, createdIssue) {
