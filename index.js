@@ -115,7 +115,11 @@ module.exports = (app) => {
             ? text.PR_OPENED_BY_COMMITTER
             : text.PR_OPENED;
 
-        const labelList = ['PR: awaiting review'];
+        const labelList = [];
+        const isDraft = context.payload.pull_request.draft;
+        if (!isDraft) {
+            labelList.push('PR: awaiting review');
+        }
         if (isCore) {
             labelList.push('PR: author is committer');
         }
@@ -145,18 +149,44 @@ module.exports = (app) => {
         return Promise.all([comment, addLabel]);
     });
 
+    app.on(['pull_request.ready_for_review'], async context => {
+        return context.octokit.issues.addLabels(
+            context.issue({
+                labels: ['PR: awaiting review']
+            })
+        );
+    });
+
+    app.on(['pull_request.converted_to_draft'], async context => {
+        return getRemoveLabel(context, 'PR: awaiting review');
+    });
+
     app.on(['pull_request.edited'], async context => {
+        const addLabels = [];
+        const removeLabels = [];
+
+        const isDraft = context.payload.pull_request.draft;
+        if (isDraft) {
+            removeLabels.push(getRemoveLabel(context, 'PR: awaiting review'));
+        } else {
+            addLabels.push('PR: awaiting review');
+        }
+
         const content = context.payload.pull_request.body;
         if (content && content.indexOf('[x] The API has been changed.') > -1) {
-            return context.octokit.issues.addLabels(
-                context.issue({
-                    labels: ['PR: awaiting doc']
-                })
-            );
+            addLabels.push('PR: awaiting doc');
         }
         else {
-            return getRemoveLabel(context, 'PR: awaiting doc');
+            removeLabels.push(getRemoveLabel(context, 'PR: awaiting doc'));
         }
+
+        const addLabel = context.octokit.issues.addLabels(
+          context.issue({
+            labels: addLabels
+          })
+        );
+
+        return Promise.all(removeLabels.concat([addLabel]));
     });
 
     app.on(['pull_request.synchronize'], async context => {
