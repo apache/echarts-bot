@@ -269,7 +269,7 @@ function commentIssue(context, commentText) {
     );
 }
 
-async function isFirstTimeContributor (context) {
+async function isFirstTimeContributor(context) {
     try {
         const response = await context.octokit.issues.listForRepo(
             context.repo({
@@ -285,7 +285,7 @@ async function isFirstTimeContributor (context) {
     }
 }
 
-async function translateIssue (context, createdIssue) {
+async function translateIssue(context, createdIssue) {
     if (!createdIssue) {
         return;
     }

@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@vitalets/google-translate-api": "^5.1.0",
+    "bing-translate-api": "^1.0.3",
     "franc-min": "^5.0.0",
     "probot": "^11.1.0"
   },
