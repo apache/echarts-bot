@@ -1,4 +1,4 @@
-const googleTranslate = require('@vitalets/google-translate-api');
+const googleTranslate = require('@plainheart/google-translate-api');
 const { translate: bingTranslate } = require('bing-translate-api')
 const franc = require('franc-min');
 
@@ -8,12 +8,15 @@ async function translateByGoogle(rawContent) {
             rawContent,
             {
                 to: 'en',
-                // tld: 'cn'
+                // tld: 'cn',
+                randomEndpoint: true
             }
         );
         return {
           translated: res.text,
-          lang: res.from.language.iso
+          lang: res.from.language.iso,
+          endpoint: res.endpoint,
+          translator: 'google'
         };
     }
     catch (e) {
@@ -48,7 +51,10 @@ async function translate(rawContent) {
     const randomIdx = ~~(Math.random() * translators.length);
     let res = await translators[randomIdx](rawContent);
     if (!res) {
-        for (let i = 0; i !== randomIdx && i < translators.length; i++) {
+        for (let i = 0; i < translators.length; i++) {
+            if (i === randomIdx) {
+                continue;
+            }
             res = await translators[i](rawContent);
             if (res) {
                 return res;
