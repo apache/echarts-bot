@@ -277,7 +277,7 @@ async function isFirstTimeContributor(context) {
                 creator: context.payload.pull_request.user.login
             })
         );
-        return response.data.filter(data => data.pull_request) === 1;
+        return response.data.filter(data => data.pull_request).length === 1;
     }
     catch (e) {
         logger.error('failed to check first-time contributor');
