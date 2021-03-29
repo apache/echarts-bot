@@ -190,15 +190,14 @@ module.exports = (app) => {
     });
 
     app.on(['pull_request.synchronize'], async context => {
-        let addLabel;
         const removeLabel = getRemoveLabel(context, 'PR: revision needed');
-        if (!context.payload.pull_request.draft) {
-            addLabel = context.octokit.issues.addLabels(
+        const addLabel = context.payload.pull_request.draft
+            ? Promise.resolve()
+            : context.octokit.issues.addLabels(
                 context.issue({
                     labels: ['PR: awaiting review']
                 })
-            );
-        }
+              );
         return Promise.all([removeLabel, addLabel]);
     });
 
