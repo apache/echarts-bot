@@ -310,11 +310,15 @@ async function translateIssue(context, createdIssue) {
             'AT_ISSUE_AUTHOR',
             '@' + createdIssue.issue.user.login
         );
-        const translateComment = `${translateTip}\n<details><summary><b>TRANSLATED</b></summary><br>${titleNeedsTranslation ? '\n\n**TITLE**\n\n' + translatedTitle[0] : ''}${bodyNeedsTranslation ? '\n\n**BODY**\n\n' + translatedBody[0] : ''}\n</details>`;
+        const translateComment = `${translateTip}\n<details><summary><b>TRANSLATED</b></summary><br>${titleNeedsTranslation ? '\n\n**TITLE**\n\n' + translatedTitle[0] : ''}${bodyNeedsTranslation ? '\n\n**BODY**\n\n' + fixMarkdown(translatedBody[0]) : ''}\n</details>`;
         await context.octokit.issues.createComment(
             context.issue({
                 body: translateComment
             })
         );
     }
+}
+
+function fixMarkdown(body) {
+  return body.replace(/\! \[/g, '![').replace(/\] \(/g, '](')
 }
