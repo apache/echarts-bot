@@ -53,7 +53,9 @@ const PR_OPENED_BY_COMMITTER = PR_OPENED + `
 
 The pull request is marked to be \`PR: author is committer\` because you are a committer of this project.`;
 
-const PR_AWAITING_DOC = `Document changes are required in this PR. Please also make a PR to [apache/echarts-doc](https://github.com/apache/echarts-doc) for document changes. When the doc PR is merged, the maintainers will remove the \`PR: awaiting doc\` label.`;
+const PR_AWAITING_DOC = `Document changes are required in this PR. Please also make a PR to [apache/echarts-doc](https://github.com/apache/echarts-doc) for document changes and update the issue id in the PR description. When the doc PR is merged, the maintainers will remove the \`PR: awaiting doc\` label.`;
+
+const PR_ZRENDER_CHANGED = 'This PR depends on [ZRender](https://github.com/ecomfe/zrender) changes. Please update the ZRender dependency to the latest nightly version including this change, which takes place everyday at 8:00 UTC (16:00 Beijing Time).\nYou can use `npm i zrender@npm:zrender-nightly@dev` to update package.json.\nIf you have any question about this, please leave a comment and we will give you extra help on this.';
 
 const PR_MERGED =
     `Congratulations! Your PR has been merged. Thanks for your contribution! 👍`;
@@ -90,6 +92,7 @@ module.exports = {
     PR_OPENED_BY_COMMITTER,
     PR_NOT_MERGED,
     PR_AWAITING_DOC,
+    PR_ZRENDER_CHANGED,
     ISSUE_TAGGED_WAITING_AUTHOR,
     ISSUE_TAGGED_EASY,
     ISSUE_TAGGED_PRIORITY_HIGH,

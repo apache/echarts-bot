@@ -125,9 +125,12 @@ module.exports = (app) => {
         }
 
         const content = context.payload.pull_request.body;
-        if (content && content.indexOf('[x] The API has been changed.') > -1) {
+        if (content && content.indexOf('[x] The API has been changed') > -1) {
             labelList.push('PR: awaiting doc');
             commentText += '\n\n' + text.PR_AWAITING_DOC;
+        }
+        if (content && content.indexOf('[x] This PR depends on ZRender changes') > -1) {
+            commentText += '\n\n' + text.PR_ZRENDER_CHANGED;
         }
 
         if (await isFirstTimeContributor(context)) {
@@ -173,7 +176,7 @@ module.exports = (app) => {
         }
 
         const content = context.payload.pull_request.body;
-        if (content && content.indexOf('[x] The API has been changed.') > -1) {
+        if (content && content.indexOf('[x] The API has been changed') > -1) {
             addLabels.push('PR: awaiting doc');
         }
         else {
