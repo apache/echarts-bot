@@ -21,9 +21,10 @@
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
-    "@vitalets/google-translate-api": "^5.0.0",
+    "@plainheart/google-translate-api": "^1.1.0",
+    "bing-translate-api": "^1.1.1",
     "franc-min": "^5.0.0",
-    "probot": "^11.0.6"
+    "probot": "^11.1.0"
   },
   "devDependencies": {
     "jest": "^25.0.0",
@@ -35,7 +36,7 @@
     "winston-daily-rotate-file": "^4.5.0"
   },
   "engines": {
-    "node": "12"
+    "node": ">=10.21"
   },
   "standard": {
     "env": [

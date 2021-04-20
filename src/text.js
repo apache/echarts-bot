@@ -37,7 +37,7 @@ const ISSUE_TAGGED_EASY =
     `This issue is labeled with \`difficulty: easy\`.
 AT_ISSUE_AUTHOR Would you like to debug it by yourself? This is a quicker way to get your problem fixed. Or you may wait for the community to fix.
 
-Please have a look at [How to debug ECharts](https://github.com/apache/incubator-echarts/blob/master/CONTRIBUTING.md#how-to-debug-echarts) if you'd like to give a try. 🤓`;
+Please have a look at [How to debug ECharts](https://github.com/apache/echarts/blob/master/CONTRIBUTING.md#how-to-debug-echarts) if you'd like to give a try. 🤓`;
 
 const MISSING_DEMO =
     `AT_ISSUE_AUTHOR Please provide a demo for the issue either with https://codepen.io/Ovilia/pen/dyYWXWM , https://www.makeapie.com/editor.html or https://codesandbox.io/s/mystifying-bash-2uthz.`;
@@ -47,13 +47,13 @@ const ISSUE_TAGGED_PRIORITY_HIGH =
 
 const PR_OPENED =
     `Thanks for your contribution!
-The community will review it ASAP. In the meanwhile, please checkout [the coding standard](https://echarts.apache.org/en/coding-standard.html) and Wiki about [How to make a pull request](https://github.com/apache/incubator-echarts/wiki/How-to-make-a-pull-request).`;
+The community will review it ASAP. In the meanwhile, please checkout [the coding standard](https://echarts.apache.org/en/coding-standard.html) and Wiki about [How to make a pull request](https://github.com/apache/echarts/wiki/How-to-make-a-pull-request).`;
 
 const PR_OPENED_BY_COMMITTER = PR_OPENED + `
 
 The pull request is marked to be \`PR: author is committer\` because you are a committer of this project.`;
 
-const PR_AWAITING_DOC = `Document changes are required in this PR. Please also make a PR to [apache/incubator-echarts-doc](https://github.com/apache/incubator-echarts-doc) for document changes. When the doc PR is merged, the maintainers will remove the \`PR: awaiting doc\` label.`;
+const PR_AWAITING_DOC = `Document changes are required in this PR. Please also make a PR to [apache/echarts-doc](https://github.com/apache/echarts-doc) for document changes. When the doc PR is merged, the maintainers will remove the \`PR: awaiting doc\` label.`;
 
 const PR_MERGED =
     `Congratulations! Your PR has been merged. Thanks for your contribution! 👍`;

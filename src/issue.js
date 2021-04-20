@@ -1,6 +1,7 @@
 const text = require('./text');
 const { isCommitter } = require('./coreCommitters');
 const { translate } = require('./translator');
+const { removeHTMLComment } = require('./util');
 
 class Issue {
     constructor(context) {
@@ -39,7 +40,7 @@ class Issue {
             this.issueType && this.addLabels.push(this.issueType);
 
             // translate issue
-            await this._translate();
+            isCore || await this._translate();
 
             // const isInEnglish = this._contain('This issue is in English');
             const isInEnglish = (!this.translatedTitle && !this.translatedBody)
@@ -61,7 +62,7 @@ class Issue {
         if (res) {
             this.translatedTitle = res.lang !== 'en' && [res.translated, res.lang];
         }
-        res = await translate(this.body);
+        res = await translate(removeHTMLComment(this.body));
         if (res) {
             this.translatedBody = res.lang !== 'en' && [res.translated, res.lang];
         }

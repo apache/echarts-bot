@@ -2,7 +2,7 @@ const Issue = require('./src/issue');
 const text = require('./src/text');
 const { isCommitter } = require('./src/coreCommitters');
 const logger = require('./src/logger');
-const { replaceAll } = require('./src/util');
+const { replaceAll, removeHTMLComment } = require('./src/util');
 
 module.exports = (app) => {
     app.on(['issues.opened'], async context => {
@@ -14,6 +14,8 @@ module.exports = (app) => {
         const comment = !issue.response || issue.response === text.NOT_USING_TEMPLATE
             ? Promise.resolve()
             : commentIssue(context, issue.response);
+
+        await comment;
 
         const addLabels = issue.addLabels.length
             ? context.octokit.issues.addLabels(
@@ -27,11 +29,15 @@ module.exports = (app) => {
             ? getRemoveLabel(issue.removeLabel)
             : Promise.resolve();
 
-        const translate = issue.response === text.ISSUE_CREATED
-            ? Promise.resolve()
-            : translateIssue(context, issue);
+        // then add and remove label
+        await Promise.all([addLabels, removeLabel]);
 
-        return Promise.all([comment, addLabels, removeLabel, translate]);
+        // translate finally
+        const translate = issue.response === text.ISSUE_CREATED
+            ? translateIssue(context, issue)
+            : Promise.resolve();
+
+        return translate;
     });
 
     app.on('issues.labeled', async context => {
@@ -109,14 +115,23 @@ module.exports = (app) => {
             ? text.PR_OPENED_BY_COMMITTER
             : text.PR_OPENED;
 
-        const labelList = ['PR: awaiting review'];
+        const labelList = [];
+        const isDraft = context.payload.pull_request.draft;
+        if (!isDraft) {
+            labelList.push('PR: awaiting review');
+        }
         if (isCore) {
             labelList.push('PR: author is committer');
         }
+
         const content = context.payload.pull_request.body;
         if (content && content.indexOf('[x] The API has been changed.') > -1) {
             labelList.push('PR: awaiting doc');
             commentText += '\n\n' + text.PR_AWAITING_DOC;
+        }
+
+        if (await isFirstTimeContributor(context)) {
+            labelList.push('PR: first-time contributor');
         }
 
         const comment = context.octokit.issues.createComment(
@@ -134,28 +149,56 @@ module.exports = (app) => {
         return Promise.all([comment, addLabel]);
     });
 
-    app.on(['pull_request.edited'], async context => {
-        const content = context.payload.pull_request.body;
-        if (content && content.indexOf('[x] The API has been changed.') > -1) {
-            return context.octokit.issues.addLabels(
-                context.issue({
-                    labels: ['PR: awaiting doc']
-                })
-            );
-        }
-        else {
-            return getRemoveLabel(context, 'PR: awaiting doc');
-        }
-    });
-
-    app.on(['pull_request.synchronize'], async context => {
-        const addLabel = context.octokit.issues.addLabels(
+    app.on(['pull_request.ready_for_review'], async context => {
+        return context.octokit.issues.addLabels(
             context.issue({
                 labels: ['PR: awaiting review']
             })
         );
+    });
+
+    app.on(['pull_request.converted_to_draft'], async context => {
+        return getRemoveLabel(context, 'PR: awaiting review');
+    });
+
+    app.on(['pull_request.edited'], async context => {
+        const addLabels = [];
+        const removeLabels = [];
+
+        const isDraft = context.payload.pull_request.draft;
+        if (isDraft) {
+            removeLabels.push(getRemoveLabel(context, 'PR: awaiting review'));
+        } else {
+            addLabels.push('PR: awaiting review');
+        }
+
+        const content = context.payload.pull_request.body;
+        if (content && content.indexOf('[x] The API has been changed.') > -1) {
+            addLabels.push('PR: awaiting doc');
+        }
+        else {
+            removeLabels.push(getRemoveLabel(context, 'PR: awaiting doc'));
+        }
+
+        const addLabel = context.octokit.issues.addLabels(
+          context.issue({
+            labels: addLabels
+          })
+        );
+
+        return Promise.all(removeLabels.concat([addLabel]));
+    });
+
+    app.on(['pull_request.synchronize'], async context => {
         const removeLabel = getRemoveLabel(context, 'PR: revision needed');
-        return Promise.all([addLabel, removeLabel]);
+        const addLabel = context.payload.pull_request.draft
+            ? Promise.resolve()
+            : context.octokit.issues.addLabels(
+                context.issue({
+                    labels: ['PR: awaiting review']
+                })
+              );
+        return Promise.all([removeLabel, addLabel]);
     });
 
     app.on(['pull_request.closed'], async context => {
@@ -190,6 +233,7 @@ module.exports = (app) => {
         }
     });
 
+    // it can be app.onError since v11.1.0
     app.webhooks.onError(error => {
         logger.error('bot occured an error');
         logger.error(error);
@@ -227,7 +271,23 @@ function commentIssue(context, commentText) {
     );
 }
 
-async function translateIssue (context, createdIssue) {
+async function isFirstTimeContributor(context) {
+    try {
+        const response = await context.octokit.issues.listForRepo(
+            context.repo({
+                state: 'all',
+                creator: context.payload.pull_request.user.login
+            })
+        );
+        return response.data.filter(data => data.pull_request).length === 1;
+    }
+    catch (e) {
+        logger.error('failed to check first-time contributor');
+        logger.error(e);
+    }
+}
+
+async function translateIssue(context, createdIssue) {
     if (!createdIssue) {
         return;
     }
@@ -238,7 +298,7 @@ async function translateIssue (context, createdIssue) {
     } = createdIssue;
 
     const titleNeedsTranslation = translatedTitle && translatedTitle[0] !== title;
-    const bodyNeedsTranslation = translatedBody && translatedBody[0] !== body;
+    const bodyNeedsTranslation = translatedBody && translatedBody[0] !== removeHTMLComment(body);
     const needsTranslation = titleNeedsTranslation || bodyNeedsTranslation;
 
     logger.info('issue needs translation: ' + needsTranslation);
@@ -250,11 +310,15 @@ async function translateIssue (context, createdIssue) {
             'AT_ISSUE_AUTHOR',
             '@' + createdIssue.issue.user.login
         );
-        const translateComment = `${translateTip}\n<details><summary><b>TRANSLATED</b></summary><br>${titleNeedsTranslation ? '\n\n**TITLE**\n\n' + translatedTitle[0] : ''}${bodyNeedsTranslation ? '\n\n**BODY**\n\n' + translatedBody[0] : ''}\n</details>`;
+        const translateComment = `${translateTip}\n<details><summary><b>TRANSLATED</b></summary><br>${titleNeedsTranslation ? '\n\n**TITLE**\n\n' + translatedTitle[0] : ''}${bodyNeedsTranslation ? '\n\n**BODY**\n\n' + fixMarkdown(translatedBody[0]) : ''}\n</details>`;
         await context.octokit.issues.createComment(
             context.issue({
                 body: translateComment
             })
         );
     }
+}
+
+function fixMarkdown(body) {
+  return body.replace(/\! \[/g, '![').replace(/\] \(/g, '](')
 }
