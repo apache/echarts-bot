@@ -26,7 +26,7 @@ module.exports = (app) => {
             : Promise.resolve();
 
         const removeLabel = issue.removeLabel
-            ? getRemoveLabel(issue.removeLabel)
+            ? getRemoveLabel(context, issue.removeLabel)
             : Promise.resolve();
 
         // then add and remove label
@@ -40,16 +40,36 @@ module.exports = (app) => {
         return translate;
     });
 
+    app.on(['issues.closed'], context => {
+        // unlabel waiting-for: comminity if issue was closed by the author self
+        if (context.payload.issue.user.login === context.payload.sender.login) {
+            return getRemoveLabel(context, 'waiting-for: community');
+        }
+    });
+
+    app.on(['issues.reopened'], context => {
+        // unlabel invalid when reopened
+        return getRemoveLabel(context, 'invalid');
+    });
+
     app.on('issues.labeled', async context => {
+        const labelName = context.payload.label.name;
+        const issue = context.payload.issue;
+        const issueAuthor = issue.user.login;
+        if (labelName !== 'resolved' && isCommitter(issue.author_association, issueAuthor)) {
+            //  do nothing if issue author is committer
+            return;
+        }
+
         const replaceAt = function (comment) {
             return replaceAll(
                 comment,
                 'AT_ISSUE_AUTHOR',
-                '@' + context.payload.issue.user.login
+                '@' + issueAuthor
             );
         };
 
-        switch (context.payload.label.name) {
+        switch (labelName) {
             case 'invalid':
                 return Promise.all([commentIssue(context, text.NOT_USING_TEMPLATE), closeIssue(context)]);
 
@@ -76,6 +96,12 @@ module.exports = (app) => {
 
             case 'priority: high':
                 return commentIssue(context, replaceAt(text.ISSUE_TAGGED_PRIORITY_HIGH));
+
+            case 'resolved':
+                return Promise.all([
+                    closeIssue(context),
+                    getRemoveLabel(context, 'waiting-for: community')
+                ]);
         }
     });
 
