@@ -41,7 +41,7 @@ module.exports = (app) => {
     });
 
     app.on(['issues.closed'], context => {
-        // unlabel waiting-for: comminity if issue was closed by the author self
+        // unlabel waiting-for: community if issue was closed by the author self
         if (context.payload.issue.user.login === context.payload.sender.login) {
             return getRemoveLabel(context, 'waiting-for: community');
         }
