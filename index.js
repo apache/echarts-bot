@@ -1,5 +1,6 @@
 const Issue = require('./src/issue');
 const text = require('./src/text');
+const labelText = require('./src/label');
 const { isCommitter } = require('./src/coreCommitters');
 const logger = require('./src/logger');
 const { replaceAll, removeHTMLComment } = require('./src/util');
@@ -43,20 +44,20 @@ module.exports = (app) => {
     app.on(['issues.closed'], context => {
         // unlabel waiting-for: community if issue was closed by the author self
         if (context.payload.issue.user.login === context.payload.sender.login) {
-            return getRemoveLabel(context, 'waiting-for: community');
+            return getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY);
         }
     });
 
     app.on(['issues.reopened'], context => {
         // unlabel invalid when reopened
-        return getRemoveLabel(context, 'invalid');
+        return getRemoveLabel(context, labelText.INVALID);
     });
 
     app.on('issues.labeled', async context => {
         const labelName = context.payload.label.name;
         const issue = context.payload.issue;
         const issueAuthor = issue.user.login;
-        if (labelName !== 'resolved' && isCommitter(issue.author_association, issueAuthor)) {
+        if (labelName !== labelText.RESOLVED && isCommitter(issue.author_association, issueAuthor)) {
             //  do nothing if issue author is committer
             return;
         }
@@ -70,16 +71,16 @@ module.exports = (app) => {
         };
 
         switch (labelName) {
-            case 'invalid':
+            case labelText.INVALID:
                 return Promise.all([commentIssue(context, text.NOT_USING_TEMPLATE), closeIssue(context)]);
 
-            case 'howto':
+            case labelText.HOWTO:
                 return Promise.all([commentIssue(context, text.LABEL_HOWTO), closeIssue(context)]);
 
-            case 'inactive':
+            case labelText.INACTIVE:
                 return Promise.all([commentIssue(context, text.INACTIVE_ISSUE), closeIssue(context)]);
 
-            case 'missing-demo':
+            case labelText.MISSING_DEMO:
                 return Promise.all([
                     commentIssue(context, replaceAt(text.MISSING_DEMO)),
                     getRemoveLabel(context, 'waiting-for: community'),
@@ -88,19 +89,19 @@ module.exports = (app) => {
                     }))
                 ]);
 
-            // case 'waiting-for: author':
+            // case labelText.WAITING_FOR_AUTHOR:
             //     return commentIssue(context, replaceAt(text.ISSUE_TAGGED_WAITING_AUTHOR));
 
-            case 'difficulty: easy':
+            case labelText.DIFFICULTY_EASY:
                 return commentIssue(context, replaceAt(text.ISSUE_TAGGED_EASY));
 
-            case 'priority: high':
+            case labelText.PRIORITY_HIGH:
                 return commentIssue(context, replaceAt(text.ISSUE_TAGGED_PRIORITY_HIGH));
 
-            case 'resolved':
+            case labelText.RESOLVED:
                 return Promise.all([
                     closeIssue(context),
-                    getRemoveLabel(context, 'waiting-for: community')
+                    getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY)
                 ]);
         }
     });
@@ -118,14 +119,14 @@ module.exports = (app) => {
         let addLabel;
         if (isCommitter(context.payload.comment.author_association, commenter) && !isCommenterAuthor) {
             // New comment from core committers
-            removeLabel = getRemoveLabel(context, 'waiting-for: community');
+            removeLabel = getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY);
         }
         else if (isCommenterAuthor) {
             // New comment from issue author
-            removeLabel = getRemoveLabel(context, 'waiting-for: author');
+            removeLabel = getRemoveLabel(context, labelText.WAITING_FOR_AUTHOR);
             addLabel = context.octokit.issues.addLabels(
                 context.issue({
-                    labels: ['waiting-for: community']
+                    labels: [labelText.WAITING_FOR_COMMUNITY]
                 })
             );
         }
@@ -144,15 +145,15 @@ module.exports = (app) => {
         const labelList = [];
         const isDraft = context.payload.pull_request.draft;
         if (!isDraft) {
-            labelList.push('PR: awaiting review');
+            labelList.push(labelText.PR_AWAITING_REVIEW);
         }
         if (isCore) {
-            labelList.push('PR: author is committer');
+            labelList.push(labelText.PR_AUTHOR_IS_COMMITTER);
         }
 
         const content = context.payload.pull_request.body;
         if (content && content.indexOf('[x] The API has been changed') > -1) {
-            labelList.push('PR: awaiting doc');
+            labelList.push(labelText.PR_AWAITING_DOC);
             commentText += '\n\n' + text.PR_AWAITING_DOC;
         }
         if (content && content.indexOf('[x] This PR depends on ZRender changes') > -1) {
@@ -160,7 +161,7 @@ module.exports = (app) => {
         }
 
         if (await isFirstTimeContributor(context)) {
-            labelList.push('PR: first-time contributor');
+            labelList.push(labelText.PR_FIRST_TIME_CONTRIBUTOR);
         }
 
         const comment = context.octokit.issues.createComment(
@@ -181,13 +182,13 @@ module.exports = (app) => {
     app.on(['pull_request.ready_for_review'], async context => {
         return context.octokit.issues.addLabels(
             context.issue({
-                labels: ['PR: awaiting review']
+                labels: [labelText.PR_AWAITING_REVIEW]
             })
         );
     });
 
     app.on(['pull_request.converted_to_draft'], async context => {
-        return getRemoveLabel(context, 'PR: awaiting review');
+        return getRemoveLabel(context, labelText.PR_AWAITING_REVIEW);
     });
 
     app.on(['pull_request.edited'], async context => {
@@ -196,17 +197,17 @@ module.exports = (app) => {
 
         const isDraft = context.payload.pull_request.draft;
         if (isDraft) {
-            removeLabels.push(getRemoveLabel(context, 'PR: awaiting review'));
+            removeLabels.push(getRemoveLabel(context, labelText.PR_AWAITING_REVIEW));
         } else {
-            addLabels.push('PR: awaiting review');
+            addLabels.push(labelText.PR_AWAITING_REVIEW);
         }
 
         const content = context.payload.pull_request.body;
         if (content && content.indexOf('[x] The API has been changed') > -1) {
-            addLabels.push('PR: awaiting doc');
+            addLabels.push(labelText.PR_AWAITING_DOC);
         }
         else {
-            removeLabels.push(getRemoveLabel(context, 'PR: awaiting doc'));
+            removeLabels.push(getRemoveLabel(context, labelText.PR_AWAITING_DOC));
         }
 
         const addLabel = context.octokit.issues.addLabels(
@@ -219,12 +220,12 @@ module.exports = (app) => {
     });
 
     app.on(['pull_request.synchronize'], async context => {
-        const removeLabel = getRemoveLabel(context, 'PR: revision needed');
+        const removeLabel = getRemoveLabel(context, labelText.PR_REVISION_NEEDED);
         const addLabel = context.payload.pull_request.draft
             ? Promise.resolve()
             : context.octokit.issues.addLabels(
                 context.issue({
-                    labels: ['PR: awaiting review']
+                    labels: [labelText.PR_AWAITING_REVIEW]
                 })
               );
         return Promise.all([removeLabel, addLabel]);
@@ -232,10 +233,10 @@ module.exports = (app) => {
 
     app.on(['pull_request.closed'], async context => {
         const actions = [
-            getRemoveLabel(context, 'PR: revision needed'),
-            getRemoveLabel(context, 'PR: awaiting review')
+            getRemoveLabel(context, labelText.PR_REVISION_NEEDED),
+            getRemoveLabel(context, labelText.PR_AWAITING_REVIEW)
         ];
-        const isMerged = context.payload['pull_request'].merged;
+        const isMerged = context.payload.pull_request.merged;
         if (isMerged) {
             const comment = context.octokit.issues.createComment(
                 context.issue({
@@ -253,11 +254,11 @@ module.exports = (app) => {
         ) {
             const addLabel = context.octokit.issues.addLabels(
                 context.issue({
-                    labels: ['PR: revision needed']
+                    labels: [labelText.PR_REVISION_NEEDED]
                 })
             );
 
-            const removeLabel = getRemoveLabel(context, 'PR: awaiting review');
+            const removeLabel = getRemoveLabel(context, labelText.PR_AWAITING_REVIEW);
             return Promise.all([addLabel, removeLabel]);
         }
     });

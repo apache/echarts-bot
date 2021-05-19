@@ -1,4 +1,5 @@
 const text = require('./text');
+const label = require('./label');
 const { isCommitter } = require('./coreCommitters');
 const { translate } = require('./translator');
 const { removeHTMLComment } = require('./util');
@@ -24,17 +25,17 @@ class Issue {
         const isCore = isCommitter(this.issue.author_association, this.issue.user.login);
         if (isCore || this.isUsingTemplate()) {
             if (this._contain('Steps to reproduce')) {
-                this.issueType = 'bug';
+                this.issueType = label.BUG;
             } else if (this._contain('What problem does this feature solve')) {
-                this.issueType = 'new-feature';
+                this.issueType = label.NEW_FEATURE;
             } else if (!isCore) {
                 this.response = text.NOT_USING_TEMPLATE;
                 return;
             }
 
             if (!isCore) {
-                this.addLabels.push('pending');
-                this.addLabels.push('waiting-for: community');
+                this.addLabels.push(label.PENDING);
+                this.addLabels.push(label.WAITING_FOR_COMMUNITY);
             }
 
             this.issueType && this.addLabels.push(this.issueType);
@@ -47,13 +48,13 @@ class Issue {
               || (!this.title.trim() && !this.translatedBody)
               || (!this.body.trim() && !this.translatedTitle);
             if (isInEnglish) {
-                this.addLabels.push('en');
+                this.addLabels.push(label.EN);
             }
 
             isCore || this._computeResponse();
         } else {
             this.response = text.NOT_USING_TEMPLATE;
-            this.addLabels.push('invalid');
+            this.addLabels.push(label.INVALID);
         }
     }
 
@@ -80,7 +81,7 @@ class Issue {
                 break;
             case 'edited':
                 this.response = text.ISSUE_UPDATED;
-                this.removeLabel = 'waiting-for: help';
+                this.removeLabel = label.WAITING_FOR_HELP;
                 break;
         }
     }
