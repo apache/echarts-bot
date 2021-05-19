@@ -83,9 +83,9 @@ module.exports = (app) => {
             case labelText.MISSING_DEMO:
                 return Promise.all([
                     commentIssue(context, replaceAt(text.MISSING_DEMO)),
-                    getRemoveLabel(context, 'waiting-for: community'),
+                    getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY),
                     context.octokit.issues.addLabels(context.issue({
-                        labels: ['waiting-for: author']
+                        labels: [labelText.WAITING_FOR_AUTHOR]
                     }))
                 ]);
 
