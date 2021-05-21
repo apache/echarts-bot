@@ -34,4 +34,4 @@ jobs:
         run: npm ci
 
       - name: Wake up bot
-        run: node src/glitch/wakeup.js
+        run: node --unhandled-rejections=strict src/glitch/wakeup.js
