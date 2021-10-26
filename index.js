@@ -99,6 +99,7 @@ module.exports = (app) => {
                 return commentIssue(context, replaceAt(text.ISSUE_TAGGED_PRIORITY_HIGH));
 
             case labelText.RESOLVED:
+            case labelText.DUPLICATE:
                 return Promise.all([
                     closeIssue(context),
                     getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY)
