@@ -19,11 +19,11 @@ In the meanwhile, please make sure that it contains **a minimum reproducible dem
 
 *A minimum reproducible demo* should contain as little data and components as possible but can still illustrate your problem. This is the best way for us to reproduce it and solve the problem faster.
 
-You may also check out the [API](http://echarts.apache.org/api.html) and [chart option](http://echarts.apache.org/option.html) to get the answer.
+You may also check out the [API](https://echarts.apache.org/api.html) and [chart option](https://echarts.apache.org/option.html) to get the answer.
 
 If you don't get helped for a long time (over a week) or have an urgent question to ask, you may also send an email to dev@echarts.apache.org. Please attach the issue link if it's a technical question.
 
-If you are interested in the project, you may also subscribe to our [mailing list](https://echarts.apache.org/en/maillist.html).
+If you are interested in the project, you may also subscribe to our [mailing list](https://echarts.apache.org/maillist.html).
 
 Have a nice day! 🍵`;
 
