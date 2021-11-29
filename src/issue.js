@@ -1,4 +1,3 @@
-const text = require('./text');
 const label = require('./label');
 const { isCommitter } = require('./coreCommitters');
 const { translate } = require('./translator');
@@ -14,8 +13,6 @@ class Issue {
         // false -> translated -> not in English
         this.translatedTitle = null;
         this.translatedBody = null;
-        this.issueType = null;
-        this.response = null;
         this.addLabels = [];
         this.removeLabel = null;
     }
@@ -48,19 +45,6 @@ class Issue {
         res = await translate(removeHTMLComment(this.body));
         if (res) {
             this.translatedBody = res.lang !== 'en' && [res.translated, res.lang];
-        }
-    }
-
-    _computeResponse() {
-        switch(this.context.payload.action) {
-            case 'opened':
-            case 'reopened':
-                this.response = text.ISSUE_CREATED;
-                break;
-            case 'edited':
-                this.response = text.ISSUE_UPDATED;
-                this.removeLabel = label.WAITING_FOR_HELP;
-                break;
         }
     }
 }

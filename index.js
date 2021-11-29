@@ -11,34 +11,22 @@ module.exports = (/** @type import('probot').Probot */ app) => {
 
         await issue.init();
 
-        // Ignore comment because it will commented when adding invalid label
-        const comment = !issue.response || issue.response === text.NOT_USING_TEMPLATE
-            ? Promise.resolve()
-            : commentIssue(context, issue.response);
-
-        await comment;
+        await commentIssue(context, text.ISSUE_CREATED);
 
         const addLabels = issue.addLabels.length
-            ? context.octokit.issues.addLabels(
+            && context.octokit.issues.addLabels(
                 context.issue({
                     labels: issue.addLabels
                 })
-              )
-            : Promise.resolve();
+            );
 
-        const removeLabel = issue.removeLabel
-            ? getRemoveLabel(context, issue.removeLabel)
-            : Promise.resolve();
+        const removeLabel = issue.removeLabel && getRemoveLabel(context, issue.removeLabel);
 
-        // then add and remove label
+        // add and remove label
         await Promise.all([addLabels, removeLabel]);
 
         // translate finally
-        const translate = issue.response === text.ISSUE_CREATED
-            ? translateIssue(context, issue)
-            : Promise.resolve();
-
-        return translate;
+        return translateIssue(context, issue);
     });
 
     app.on(['issues.closed'], context => {
