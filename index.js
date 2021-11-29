@@ -5,7 +5,7 @@ const { isCommitter } = require('./src/coreCommitters');
 const logger = require('./src/logger');
 const { replaceAll, removeHTMLComment } = require('./src/util');
 
-module.exports = (app) => {
+module.exports = (/** @type import('probot').Probot */ app) => {
     app.on(['issues.opened'], async context => {
         const issue = new Issue(context);
 
@@ -284,6 +284,9 @@ function getRemoveLabel(context, name) {
     });
 }
 
+/**
+ * @param {import('probot').Context} context
+ */
 function closeIssue(context) {
     // close issue
     return context.octokit.issues.update(
@@ -293,6 +296,10 @@ function closeIssue(context) {
     );
 }
 
+/**
+ * @param {import('probot').Context} context
+ * @param {string} commentText
+ */
 function commentIssue(context, commentText) {
     // create comment
     return context.octokit.issues.createComment(
@@ -302,6 +309,9 @@ function commentIssue(context, commentText) {
     );
 }
 
+/**
+ * @param {import('probot').Context} context
+ */
 async function isFirstTimeContributor(context) {
     try {
         const response = await context.octokit.issues.listForRepo(
@@ -318,6 +328,10 @@ async function isFirstTimeContributor(context) {
     }
 }
 
+/**
+ * @param {import('probot').Context} context
+ * @param {Issue} createdIssue
+ */
 async function translateIssue(context, createdIssue) {
     if (!createdIssue) {
         return;
@@ -350,6 +364,9 @@ async function translateIssue(context, createdIssue) {
     }
 }
 
+/**
+ * @param {string} body
+ */
 function fixMarkdown(body) {
   return body.replace(/\! \[/g, '![').replace(/\] \(/g, '](')
 }
