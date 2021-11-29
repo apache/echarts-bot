@@ -11,7 +11,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
 
         await issue.init();
 
-        await commentIssue(context, text.ISSUE_CREATED);
+        // await commentIssue(context, text.ISSUE_CREATED);
 
         const addLabels = issue.addLabels.length
             && context.octokit.issues.addLabels(
