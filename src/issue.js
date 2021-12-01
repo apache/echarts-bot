@@ -15,6 +15,7 @@ class Issue {
         this.translatedBody = null;
         this.addLabels = [];
         this.removeLabel = null;
+        this.response = null;
     }
 
     async init () {
@@ -22,6 +23,11 @@ class Issue {
         const isCore = isCommitter(this.issue.author_association, this.issue.user.login);
 
         if (!isCore) {
+            // avoid opening an issue with no template through `Reference in new issue`
+            if (!this.isUsingTemplate()) {
+                this.addLabels.push(label.INVALID);
+                return;
+            }
             this.addLabels.push(label.PENDING);
             this.addLabels.push(label.WAITING_FOR_COMMUNITY);
         }
@@ -46,6 +52,11 @@ class Issue {
         if (res) {
             this.translatedBody = res.lang !== 'en' && [res.translated, res.lang];
         }
+    }
+
+    isUsingTemplate() {
+        return this.body.indexOf('Steps To Reproduce') > -1
+            || this.body.indexOf('What problem does this feature solve') > - 1;
     }
 }
 

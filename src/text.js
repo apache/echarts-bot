@@ -1,15 +1,13 @@
 const NOT_USING_TEMPLATE =
-    `This issue is not created using [issue template](https://ecomfe.github.io/echarts-issue-helper/) so I'm going to close it. 🙊
+    `This issue is not created using [issue template](https://github.com/apache/echarts/issues/new/choose) so I'm going to close it. 🙊
 Sorry for this, but it helps save our maintainers' time so that more developers get helped.
 Feel free to create another issue using the issue template.
 
 If you think you have already made your point clear without the template, or your problem cannot be covered by it, you may re-open this issue again.
 
-这个 issue 未使用 [issue 模板](https://ecomfe.github.io/echarts-issue-helper/?lang=zh-cn) 创建，所以我将关闭此 issue。
+这个 issue 未使用 [issue 模板](https://github.com/apache/echarts/issues/new/choose) 创建，所以我将关闭此 issue。
 为此带来的麻烦我深表歉意，但是请理解这是为了节约社区维护者的时间，以更高效地服务社区的开发者群体。
-如果您愿意，请使用 issue 模板重新创建 issue。
-
-如果您认为虽然没有使用模板，但您已经提供了复现问题的充分描述，或者您的问题无法使用模板表达，也可以重新 open 这个 issue。`;
+如果您愿意，请使用 issue 模板重新创建 issue。`;
 
 const ISSUE_CREATED =
     `Hi! We've received your issue and please be patient to get responded. 🎉
@@ -82,7 +80,7 @@ For (1), we have decided to use the GitHub issue lists exclusively for work that
 
 For (2), we have found that issues that do not provide proper information upfront usually results in terribly inefficient back-and-forth communication just to extract the basic information needed for actual triaging. This is exactly why we have created this app: to ensure that every issue is created with the necessary information, and to save time on both sides.`;
 
-const ISSUE_COMMENT_TRANSLATE_TIP = 'AT_ISSUE_AUTHOR It seems you are not using English, I\'ve helped translate the content automatically. To make your issue understood by more people, we\'d like to suggest using English next time. 🤗';
+const ISSUE_COMMENT_TRANSLATE_TIP = 'AT_ISSUE_AUTHOR It seems you are not using English, I\'ve helped translate the content automatically. To make your issue understood by more people and get helped, we\'d like to suggest using English next time. 🤗';
 
 module.exports = {
     NOT_USING_TEMPLATE,
