@@ -11,7 +11,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
 
         await issue.init();
 
-        // await commentIssue(context, text.ISSUE_CREATED);
+        // issue.response && await commentIssue(context, issue.response);
 
         const addLabels = issue.addLabels.length
             && context.octokit.issues.addLabels(
@@ -25,8 +25,10 @@ module.exports = (/** @type import('probot').Probot */ app) => {
         // add and remove label
         await Promise.all([addLabels, removeLabel]);
 
-        // translate finally
-        return translateIssue(context, issue);
+        const invalid = addLabels.includes(labelText.INVALID);
+
+        // translate finally if valid
+        return invalid || translateIssue(context, issue);
     });
 
     app.on(['issues.closed'], context => {
