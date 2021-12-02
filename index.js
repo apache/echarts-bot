@@ -25,7 +25,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
         // add and remove label
         await Promise.all([addLabels, removeLabel]);
 
-        const invalid = addLabels.includes(labelText.INVALID);
+        const invalid = issue.addLabels.includes(labelText.INVALID);
 
         // translate finally if valid
         return invalid || translateIssue(context, issue);
