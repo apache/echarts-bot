@@ -104,24 +104,35 @@ module.exports = (/** @type import('probot').Probot */ app) => {
             return;
         }
 
-        const commenter = context.payload.comment.user.login;
+        const comment = context.payload.comment;
+        const commenter = comment.user.login;
         const isCommenterAuthor = commenter === context.payload.issue.user.login;
+        const isCore = isCommitter(comment.author_association, commenter);
         let removeLabel;
         let addLabel;
-        if (isCommitter(context.payload.comment.author_association, commenter) && !isCommenterAuthor) {
-            // New comment from core committers
-            removeLabel = getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY);
+        if (isCore && !isCommenterAuthor) {
+            // add `duplicate` label when a committer comments with the `Duplicate of` keyword on the issue
+            if (comment.body.indexOf('Duplicate of #') > -1) {
+                addLabel = labelText.DUPLICATE;
+            }
+            else {
+                // New comment from core committers
+                removeLabel = getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY);
+            }
         }
         else if (isCommenterAuthor) {
             // New comment from issue author
             removeLabel = getRemoveLabel(context, labelText.WAITING_FOR_AUTHOR);
-            addLabel = context.octokit.issues.addLabels(
-                context.issue({
-                    labels: [labelText.WAITING_FOR_COMMUNITY]
-                })
-            );
+            addLabel = labelText.WAITING_FOR_COMMUNITY;
         }
-        return Promise.all([removeLabel, addLabel]);
+        return Promise.all([
+            removeLabel,
+            addLabel && context.octokit.issues.addLabels(
+                context.issue({
+                    labels: [addLabel]
+                })
+            )]
+        );
     });
 
     app.on(['pull_request.opened'], async context => {
@@ -189,7 +200,8 @@ module.exports = (/** @type import('probot').Probot */ app) => {
         const isDraft = context.payload.pull_request.draft;
         if (isDraft) {
             removeLabels.push(getRemoveLabel(context, labelText.PR_AWAITING_REVIEW));
-        } else {
+        }
+        else {
             addLabels.push(labelText.PR_AWAITING_REVIEW);
         }
 
@@ -254,13 +266,16 @@ module.exports = (/** @type import('probot').Probot */ app) => {
         }
     });
 
-    // it can be app.onError since v11.1.0
-    app.webhooks.onError(error => {
+    app.onError(e => {
         logger.error('bot occured an error');
-        logger.error(error);
+        logger.error(e);
     });
 }
 
+/**
+ * @param {import('probot').Context} context
+ * @param {string} name label name
+ */
 function getRemoveLabel(context, name) {
     return context.octokit.issues.removeLabel(
         context.issue({
