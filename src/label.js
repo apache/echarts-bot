@@ -15,6 +15,7 @@ const RESOLVED = 'resolved';
 const HOWTO = 'howto';
 const INACTIVE = 'inactive';
 const MISSING_DEMO = 'missing-demo';
+const MISSING_TITLE = 'missing-title';
 const DUPLICATE = 'duplicate';
 
 const PRIORITY_HIGH = 'priority: high';
@@ -41,6 +42,7 @@ module.exports = {
     HOWTO,
     INACTIVE,
     MISSING_DEMO,
+    MISSING_TITLE,
     DUPLICATE,
     PRIORITY_HIGH,
     PR_AWAITING_REVIEW,

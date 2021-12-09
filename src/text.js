@@ -80,13 +80,24 @@ For (1), we have decided to use the GitHub issue lists exclusively for work that
 
 For (2), we have found that issues that do not provide proper information upfront usually results in terribly inefficient back-and-forth communication just to extract the basic information needed for actual triaging. This is exactly why we have created this app: to ensure that every issue is created with the necessary information, and to save time on both sides.`;
 
-const ISSUE_COMMENT_TRANSLATE_TIP = 'AT_ISSUE_AUTHOR It seems you are not using English, I\'ve helped translate the content automatically. To make your issue understood by more people and get helped, we\'d like to suggest using English next time. 🤗';
+const ISSUE_COMMENT_TRANSLATE_TIP =
+    'AT_ISSUE_AUTHOR It seems you are not using English, I\'ve helped translate the content automatically. To make your issue understood by more people and get helped, we\'d like to suggest using English next time. 🤗';
+
+const MISSING_TITLE =
+    `I'm sorry to close this issue for it lacks the necessary title. Please open a new issue **with a _descriptive_ and as _concise_ as possible title to describe your problems or requests**.
+
+Every good bug report or feature request starts with a title. Your issue title is a critical element as it's the first thing maintainers see.
+
+A good issue title makes it easier for maintainers to understand what the issue is, easily locate it, and know what steps they'll need to take to fix it.
+
+Moreover, it's better to include keywords, as this makes it easier to find the issue self and similar issues in searches.`;
 
 module.exports = {
     NOT_USING_TEMPLATE,
     ISSUE_CREATED,
     ISSUE_UPDATED,
     MISSING_DEMO,
+    MISSING_TITLE,
     INACTIVE_ISSUE,
     PR_OPENED,
     LABEL_HOWTO,
