@@ -65,9 +65,8 @@ class Issue {
     }
 
     isMissingTitle() {
-        console.log(this.title)
         const title = this.title.trim()
-        return !title || !title.toLowerCase().replace('[bug]', '').replace('[feature]', '')
+        return !title || !title.toLowerCase().replace('[bug]', '').replace('[feature]', '');
     }
 }
 
