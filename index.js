@@ -25,7 +25,8 @@ module.exports = (/** @type import('probot').Probot */ app) => {
         // add and remove label
         await Promise.all([addLabels, removeLabel]);
 
-        const invalid = issue.addLabels.includes(labelText.INVALID);
+        const invalid = issue.addLabels.includes(labelText.INVALID)
+            || issue.addLabels.includes(labelText.MISSING_TITLE);
 
         // translate finally if valid
         return invalid || translateIssue(context, issue);
@@ -62,13 +63,22 @@ module.exports = (/** @type import('probot').Probot */ app) => {
 
         switch (labelName) {
             case labelText.INVALID:
-                return Promise.all([commentIssue(context, text.NOT_USING_TEMPLATE), closeIssue(context)]);
+                return Promise.all([
+                    commentIssue(context, text.NOT_USING_TEMPLATE),
+                    closeIssue(context)
+                ]);
 
             case labelText.HOWTO:
-                return Promise.all([commentIssue(context, text.LABEL_HOWTO), closeIssue(context)]);
+                return Promise.all([
+                    commentIssue(context, text.LABEL_HOWTO),
+                    closeIssue(context)
+                ]);
 
             case labelText.INACTIVE:
-                return Promise.all([commentIssue(context, text.INACTIVE_ISSUE), closeIssue(context)]);
+                return Promise.all([
+                    commentIssue(context, text.INACTIVE_ISSUE),
+                    closeIssue(context)
+                ]);
 
             case labelText.MISSING_DEMO:
                 return Promise.all([
@@ -93,6 +103,12 @@ module.exports = (/** @type import('probot').Probot */ app) => {
                 return Promise.all([
                     closeIssue(context),
                     getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY)
+                ]);
+
+            case labelText.MISSING_TITLE:
+                return Promise.all([
+                    commentIssue(context, text.MISSING_TITLE),
+                    closeIssue(context)
                 ]);
         }
     });

@@ -23,7 +23,12 @@ class Issue {
         const isCore = isCommitter(this.issue.author_association, this.issue.user.login);
 
         if (!isCore) {
-            // avoid opening an issue with no template through `Reference in new issue`
+            // check if the title is valid
+            if (this.isMissingTitle()) {
+                this.addLabels.push(label.MISSING_TITLE);
+                return;
+            }
+            // prevent from opening an issue with no template via `Reference in new issue` button
             if (!this.isUsingTemplate()) {
                 this.addLabels.push(label.INVALID);
                 return;
@@ -55,8 +60,13 @@ class Issue {
     }
 
     isUsingTemplate() {
-        return this.body.indexOf('Steps To Reproduce') > -1
+        return this.body.indexOf('Steps to Reproduce') > -1
             || this.body.indexOf('What problem does this feature solve') > - 1;
+    }
+
+    isMissingTitle() {
+        const title = this.title.trim()
+        return !title || !title.toLowerCase().replace('[bug]', '').replace('[feature]', '');
     }
 }
 
