@@ -1,8 +1,8 @@
 const Issue = require('./src/issue');
 const text = require('./src/text');
 const labelText = require('./src/label');
-const { isCommitter } = require('./src/coreCommitters');
 const logger = require('./src/logger');
+const { isCommitter } = require('./src/coreCommitters');
 const { replaceAll, removeHTMLComment } = require('./src/util');
 
 module.exports = (/** @type import('probot').Probot */ app) => {
@@ -13,17 +13,11 @@ module.exports = (/** @type import('probot').Probot */ app) => {
 
         // issue.response && await commentIssue(context, issue.response);
 
-        const addLabels = issue.addLabels.length
-            && context.octokit.issues.addLabels(
-                context.issue({
-                    labels: issue.addLabels
-                })
-            );
-
-        const removeLabel = issue.removeLabel && getRemoveLabel(context, issue.removeLabel);
-
         // add and remove label
-        await Promise.all([addLabels, removeLabel]);
+        await Promise.all([
+            addLabels(context, issue.addLabels),
+            removeLabels(context, issue.removeLabels)
+        ]);
 
         const invalid = issue.addLabels.includes(labelText.INVALID)
             || issue.addLabels.includes(labelText.MISSING_TITLE);
@@ -32,16 +26,44 @@ module.exports = (/** @type import('probot').Probot */ app) => {
         return invalid || translateIssue(context, issue);
     });
 
+    app.on(['issues.edited'], async context => {
+        const ctxIssue = context.payload.issue;
+        const labels = ctxIssue.labels;
+        if (labels && labels.findIndex(label => label.name === labelText.MISSING_TITLE) > -1) {
+            // issue was closed for missing-title
+            if (ctxIssue.state === 'closed') {
+                const issue = new Issue(context);
+                await issue.init();
+                const invalid = issue.addLabels.includes(labelText.INVALID)
+                    || issue.addLabels.includes(labelText.MISSING_TITLE);
+                // issue title has been provided and uses the template, reopen it
+                if (!invalid) {
+                    // add labels
+                    await addLabels(context, issue.addLabels);
+                    // reopen issue
+                    await openIssue(context);
+                    // translate
+                    translateIssue(context, issue);
+                }
+            }
+        }
+    });
+
     app.on(['issues.closed'], context => {
         // unlabel waiting-for: community if issue was closed by the author self
         if (context.payload.issue.user.login === context.payload.sender.login) {
-            return getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY);
+            return removeLabels(context, [labelText.WAITING_FOR_COMMUNITY]);
         }
     });
 
     app.on(['issues.reopened'], context => {
-        // unlabel invalid when reopened
-        return getRemoveLabel(context, labelText.INVALID);
+        // unlabel invalid & missing-title when reopened by bot or commiters
+        if (context.payload.issue.user.login !== context.payload.sender.login)  {
+            return removeLabels(context, [
+                labelText.INVALID,
+                labelText.MISSING_TITLE
+            ]);
+        }
     });
 
     app.on('issues.labeled', async context => {
@@ -83,10 +105,8 @@ module.exports = (/** @type import('probot').Probot */ app) => {
             case labelText.MISSING_DEMO:
                 return Promise.all([
                     commentIssue(context, replaceAt(text.MISSING_DEMO)),
-                    getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY),
-                    context.octokit.issues.addLabels(context.issue({
-                        labels: [labelText.WAITING_FOR_AUTHOR]
-                    }))
+                    removeLabels(context, [labelText.WAITING_FOR_COMMUNITY]),
+                    addLabels(context, [labelText.WAITING_FOR_AUTHOR])
                 ]);
 
             // case labelText.WAITING_FOR_AUTHOR:
@@ -102,7 +122,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
             case labelText.DUPLICATE:
                 return Promise.all([
                     closeIssue(context),
-                    getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY)
+                    removeLabels(context, [labelText.WAITING_FOR_COMMUNITY])
                 ]);
 
             case labelText.MISSING_TITLE:
@@ -133,22 +153,18 @@ module.exports = (/** @type import('probot').Probot */ app) => {
             }
             else {
                 // New comment from core committers
-                removeLabel = getRemoveLabel(context, labelText.WAITING_FOR_COMMUNITY);
+                removeLabel = labelText.WAITING_FOR_COMMUNITY;
             }
         }
         else if (isCommenterAuthor) {
             // New comment from issue author
-            removeLabel = getRemoveLabel(context, labelText.WAITING_FOR_AUTHOR);
+            removeLabel = labelText.WAITING_FOR_AUTHOR;
             addLabel = labelText.WAITING_FOR_COMMUNITY;
         }
         return Promise.all([
-            removeLabel,
-            addLabel && context.octokit.issues.addLabels(
-                context.issue({
-                    labels: [addLabel]
-                })
-            )]
-        );
+            removeLabels(context, [removeLabel]),
+            addLabels(context, [addLabel])
+        ]);
     });
 
     app.on(['pull_request.opened'], async context => {
@@ -182,103 +198,76 @@ module.exports = (/** @type import('probot').Probot */ app) => {
             labelList.push(labelText.PR_FIRST_TIME_CONTRIBUTOR);
         }
 
-        const comment = context.octokit.issues.createComment(
-            context.issue({
-                body: commentText
-            })
-        );
-
-        const addLabel = context.octokit.issues.addLabels(
-            context.issue({
-                labels: labelList
-            })
-        );
-
-        return Promise.all([comment, addLabel]);
+        return Promise.all([
+            commentIssue(context, commentText),
+            addLabels(context, labelList)
+        ]);
     });
 
     app.on(['pull_request.ready_for_review'], async context => {
-        return context.octokit.issues.addLabels(
-            context.issue({
-                labels: [labelText.PR_AWAITING_REVIEW]
-            })
-        );
+        return addLabels(context, [labelText.PR_AWAITING_REVIEW]);
     });
 
     app.on(['pull_request.converted_to_draft'], async context => {
-        return getRemoveLabel(context, labelText.PR_AWAITING_REVIEW);
+        return removeLabels(context, [labelText.PR_AWAITING_REVIEW]);
     });
 
     app.on(['pull_request.edited'], async context => {
-        const addLabels = [];
-        const removeLabels = [];
+        const addLabel = [];
+        const removeLabel = [];
+        const pr = context.payload.pull_request;
 
-        const isDraft = context.payload.pull_request.draft;
-        if (isDraft) {
-            removeLabels.push(getRemoveLabel(context, labelText.PR_AWAITING_REVIEW));
+        if (pr.draft) {
+            removeLabel.push(labelText.PR_AWAITING_REVIEW);
         }
         else {
-            addLabels.push(labelText.PR_AWAITING_REVIEW);
+            addLabel.push(labelText.PR_AWAITING_REVIEW);
         }
 
-        const content = context.payload.pull_request.body;
+        const content = pr.body;
         if (content && content.indexOf('[x] The API has been changed') > -1) {
-            addLabels.push(labelText.PR_AWAITING_DOC);
+            addLabel.push(labelText.PR_AWAITING_DOC);
         }
         else {
-            removeLabels.push(getRemoveLabel(context, labelText.PR_AWAITING_DOC));
+            removeLabel.push(labelText.PR_AWAITING_DOC);
         }
 
-        const addLabel = context.octokit.issues.addLabels(
-          context.issue({
-            labels: addLabels
-          })
-        );
-
-        return Promise.all(removeLabels.concat([addLabel]));
+        return Promise.all([
+            removeLabels(removeLabel),
+            addLabels(addLabel)
+        ]);
     });
 
     app.on(['pull_request.synchronize'], async context => {
-        const removeLabel = getRemoveLabel(context, labelText.PR_REVISION_NEEDED);
+        const removeLabel = removeLabels(context, [labelText.PR_REVISION_NEEDED]);
         const addLabel = context.payload.pull_request.draft
-            ? Promise.resolve()
-            : context.octokit.issues.addLabels(
-                context.issue({
-                    labels: [labelText.PR_AWAITING_REVIEW]
-                })
-              );
+            || addLabels(context, [labelText.PR_AWAITING_REVIEW]);
         return Promise.all([removeLabel, addLabel]);
     });
 
     app.on(['pull_request.closed'], async context => {
         const actions = [
-            getRemoveLabel(context, labelText.PR_REVISION_NEEDED),
-            getRemoveLabel(context, labelText.PR_AWAITING_REVIEW)
+            removeLabels(context, [
+                labelText.PR_REVISION_NEEDED,
+                labelText.PR_AWAITING_REVIEW
+            ])
         ];
         const isMerged = context.payload.pull_request.merged;
         if (isMerged) {
-            const comment = context.octokit.issues.createComment(
-                context.issue({
-                    body: text.PR_MERGED
-                })
-            );
-            actions.push(comment);
+            actions.push(commentIssue(context, text.PR_MERGED));
         }
         return Promise.all(actions);
     });
 
     app.on(['pull_request_review.submitted'], async context => {
-        if (context.payload.review.state === 'changes_requested'
-            && isCommitter(context.payload.review.author_association, context.payload.review.user.login)
+        const review = context.payload.review;
+        if (review.state === 'changes_requested'
+            && isCommitter(review.author_association, review.user.login)
         ) {
-            const addLabel = context.octokit.issues.addLabels(
-                context.issue({
-                    labels: [labelText.PR_REVISION_NEEDED]
-                })
-            );
-
-            const removeLabel = getRemoveLabel(context, labelText.PR_AWAITING_REVIEW);
-            return Promise.all([addLabel, removeLabel]);
+            return Promise.all([
+                addLabels(context, [labelText.PR_REVISION_NEEDED]),
+                removeLabels(context, [labelText.PR_AWAITING_REVIEW])
+            ]);
         }
     });
 
@@ -290,19 +279,35 @@ module.exports = (/** @type import('probot').Probot */ app) => {
 
 /**
  * @param {import('probot').Context} context
- * @param {string} name label name
+ * @param {string} labelNames label names to be removed
  */
-function getRemoveLabel(context, name) {
-    return context.octokit.issues.removeLabel(
+function removeLabels(context, labelNames) {
+    return labelNames && Promise.all(
+        labelNames.map(
+            label => context.octokit.issues.removeLabel(
+                context.issue({
+                    name: label
+                })
+            ).catch(err => {
+                // Ignore error caused by not existing.
+                // if (err.message !== 'Not Found') {
+                //     throw(err);
+                // }
+            })
+        )
+    );
+}
+
+/**
+ * @param {import('probot').Context} context
+ * @param {Array<string>} labelNames label names to be added
+ */
+function addLabels(context, labelNames) {
+    return labelNames && labelNames.length && context.octokit.issues.addLabels(
         context.issue({
-            name: name
+            labels: labelNames
         })
-    ).catch(err => {
-        // Ignore error caused by not existing.
-        // if (err.message !== 'Not Found') {
-        //     throw(err);
-        // }
-    });
+    )
 }
 
 /**
@@ -313,6 +318,18 @@ function closeIssue(context) {
     return context.octokit.issues.update(
         context.issue({
             state: 'closed'
+        })
+    );
+}
+
+/**
+ * @param {import('probot').Context} context
+ */
+function openIssue(context) {
+    // open issue
+    return context.octokit.issues.update(
+        context.issue({
+            state: 'open'
         })
     );
 }
@@ -377,11 +394,7 @@ async function translateIssue(context, createdIssue) {
             '@' + createdIssue.issue.user.login
         );
         const translateComment = `${translateTip}\n<details><summary><b>TRANSLATED</b></summary><br>${titleNeedsTranslation ? '\n\n**TITLE**\n\n' + translatedTitle[0] : ''}${bodyNeedsTranslation ? '\n\n**BODY**\n\n' + fixMarkdown(translatedBody[0]) : ''}\n</details>`;
-        await context.octokit.issues.createComment(
-            context.issue({
-                body: translateComment
-            })
-        );
+        await commentIssue(context, translateComment);
     }
 }
 

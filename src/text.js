@@ -84,7 +84,7 @@ const ISSUE_COMMENT_TRANSLATE_TIP =
     'AT_ISSUE_AUTHOR It seems you are not using English, I\'ve helped translate the content automatically. To make your issue understood by more people and get helped, we\'d like to suggest using English next time. 🤗';
 
 const MISSING_TITLE =
-    `I'm sorry to close this issue for it lacks the necessary title. Please open a new issue **with a _descriptive_ and as _concise_ as possible title to describe your problems or requests**.
+    `I'm sorry to close this issue for it lacks the necessary title. Please provide **a _descriptive_ and as _concise_ as possible title to describe your problems or requests** and then the maintainers or I will reopen this issue.
 
 Every good bug report or feature request starts with a title. Your issue title is a critical element as it's the first thing maintainers see.
 

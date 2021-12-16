@@ -14,7 +14,7 @@ class Issue {
         this.translatedTitle = null;
         this.translatedBody = null;
         this.addLabels = [];
-        this.removeLabel = null;
+        this.removeLabels = [];
         this.response = null;
     }
 
