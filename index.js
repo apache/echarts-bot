@@ -147,8 +147,8 @@ module.exports = (/** @type import('probot').Probot */ app) => {
         let removeLabel;
         let addLabel;
         if (isCore && !isCommenterAuthor) {
-            // add `duplicate` label when a committer comments with the `Duplicate of` keyword on the issue
-            if (comment.body.indexOf('Duplicate of #') > -1) {
+            // add `duplicate` label when a committer comments with the `Duplicate of/with` keyword on the issue
+            if (/Duplicate (of|with) #/i.test(comment.body)) {
                 addLabel = labelText.DUPLICATE;
             }
             else {
