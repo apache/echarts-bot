@@ -3,8 +3,6 @@ const NOT_USING_TEMPLATE =
 Sorry for this, but it helps save our maintainers' time so that more developers get helped.
 Feel free to create another issue using the issue template.
 
-If you think you have already made your point clear without the template, or your problem cannot be covered by it, you may re-open this issue again.
-
 这个 issue 未使用 [issue 模板](https://github.com/apache/echarts/issues/new/choose) 创建，所以我将关闭此 issue。
 为此带来的麻烦我深表歉意，但是请理解这是为了节约社区维护者的时间，以更高效地服务社区的开发者群体。
 如果您愿意，请使用 issue 模板重新创建 issue。`;
