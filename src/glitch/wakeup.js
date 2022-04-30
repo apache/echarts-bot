@@ -3,9 +3,14 @@ const got = require('got');
 const WAKEUP_URL = 'https://apache-incubator-echarts-bot-1.glitch.me/probot';
 
 (async function() {
-  const { body } = await got(WAKEUP_URL);
+  const { body } = await got(WAKEUP_URL, {
+    headers: {
+      'Accept': 'text/html',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.41 Safari/537.36'
+    }
+  });
   if (body.indexOf('Welcome to') === -1) {
     throw new Error('bot may not be working.');
   }
-  console.log('bot is now working.');
+  console.log('･ﾟ✧ bot is now working.');
 })();
