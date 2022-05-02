@@ -40,7 +40,7 @@ AT_ISSUE_AUTHOR Would you like to debug it by yourself? This is a quicker way to
 Please have a look at [How to debug ECharts](https://github.com/apache/echarts/blob/master/CONTRIBUTING.md#how-to-debug-echarts) if you'd like to give a try. 🤓`;
 
 const MISSING_DEMO =
-    `AT_ISSUE_AUTHOR Please provide a demo for the issue either with https://codepen.io/Ovilia/pen/dyYWXWM , or https://codesandbox.io/s/echarts-basic-example-template-mpfz1s .`;
+    `AT_ISSUE_AUTHOR Please provide a demo for the issue with [Official Editor](https://echarts.apache.org/examples/editor.html), [CodePen](https://codepen.io/Ovilia/pen/dyYWXWM), [CodeSandBox](https://codesandbox.io/s/echarts-basic-example-template-mpfz1s) or [JSFiddle](https://jsfiddle.net/plainheart/e46ozpqj/7/).`;
 
 const ISSUE_TAGGED_PRIORITY_HIGH =
     `This issue is labeled with \`priority: high\`, which means it's a frequently asked problem and we will fix it ASAP.`;
