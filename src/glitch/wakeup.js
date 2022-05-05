@@ -10,6 +10,7 @@ const WAKEUP_URL = 'https://apache-incubator-echarts-bot-1.glitch.me/probot';
     }
   });
   if (body.indexOf('Welcome to') === -1) {
+    console.log('Response body:\n', body);
     throw new Error('bot may not be working.');
   }
   console.log('･ﾟ✧ bot is now working.');
