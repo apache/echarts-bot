@@ -159,11 +159,11 @@ module.exports = (/** @type import('probot').Probot */ app) => {
         else if (isCommenterAuthor) {
             // New comment from issue author
             removeLabel = labelText.WAITING_FOR_AUTHOR;
-            addLabel = labelText.WAITING_FOR_COMMUNITY;
+            // addLabel = labelText.WAITING_FOR_COMMUNITY;
         }
         return Promise.all([
             removeLabels(context, [removeLabel]),
-            addLabels(context, [addLabel])
+            addLabel && addLabels(context, [addLabel])
         ]);
     });
 

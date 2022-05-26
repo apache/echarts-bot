@@ -34,7 +34,7 @@ class Issue {
                 return;
             }
             this.addLabels.push(label.PENDING);
-            this.addLabels.push(label.WAITING_FOR_COMMUNITY);
+            // this.addLabels.push(label.WAITING_FOR_COMMUNITY);
         }
 
         // translate issue
