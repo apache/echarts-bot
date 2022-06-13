@@ -3,7 +3,7 @@ const text = require('./src/text');
 const labelText = require('./src/label');
 const logger = require('./src/logger');
 const { isCommitter } = require('./src/coreCommitters');
-const { replaceAll, removeHTMLComment } = require('./src/util');
+const { replaceAll, removeHTMLComment, isMissingDocInfo } = require('./src/util');
 
 module.exports = (/** @type import('probot').Probot */ app) => {
     app.on(['issues.opened'], async context => {
@@ -177,6 +177,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
             : text.PR_OPENED;
 
         const labelList = [];
+        const removeLabelList = [];
         const isDraft = context.payload.pull_request.draft;
         if (!isDraft) {
             labelList.push(labelText.PR_AWAITING_REVIEW);
@@ -185,13 +186,12 @@ module.exports = (/** @type import('probot').Probot */ app) => {
             labelList.push(labelText.PR_AUTHOR_IS_COMMITTER);
         }
 
-        const content = context.payload.pull_request.body;
-        if (content && content.indexOf('[x] The API has been changed') > -1) {
-            labelList.push(labelText.PR_AWAITING_DOC);
-            commentText += '\n\n' + text.PR_AWAITING_DOC;
-        }
-        if (content && content.indexOf('[x] This PR depends on ZRender changes') > -1) {
-            commentText += '\n\n' + text.PR_ZRENDER_CHANGED;
+        const content = context.payload.pull_request.body || '';
+
+        commentText = checkDoc(content, labelList, removeLabelList);
+
+        if (content.indexOf('[x] This PR depends on ZRender changes') > -1) {
+            commentText += text.PR_ZRENDER_CHANGED;
         }
 
         if (await isFirstTimeContributor(context)) {
@@ -200,7 +200,8 @@ module.exports = (/** @type import('probot').Probot */ app) => {
 
         return Promise.all([
             commentIssue(context, commentText),
-            addLabels(context, labelList)
+            addLabels(context, labelList),
+            removeLabels(context, removeLabelList)
         ]);
     });
 
@@ -224,15 +225,12 @@ module.exports = (/** @type import('probot').Probot */ app) => {
             addLabel.push(labelText.PR_AWAITING_REVIEW);
         }
 
-        const content = pr.body;
-        if (content && content.indexOf('[x] The API has been changed') > -1) {
-            addLabel.push(labelText.PR_AWAITING_DOC);
-        }
-        else {
-            removeLabel.push(labelText.PR_AWAITING_DOC);
-        }
+        const content = pr.body || '';
+
+        const commentText = checkDoc(content, '', addLabel, removeLabel);
 
         return Promise.all([
+            commentIssue(context, commentText),
             removeLabels(removeLabel),
             addLabels(addLabel)
         ]);
@@ -261,13 +259,25 @@ module.exports = (/** @type import('probot').Probot */ app) => {
 
     app.on(['pull_request_review.submitted'], async context => {
         const review = context.payload.review;
-        if (review.state === 'changes_requested'
-            && isCommitter(review.author_association, review.user.login)
-        ) {
-            return Promise.all([
-                addLabels(context, [labelText.PR_REVISION_NEEDED]),
-                removeLabels(context, [labelText.PR_AWAITING_REVIEW])
-            ]);
+        const addLabel = [];
+        const removeLabel = [];
+        if (isCommitter(review.author_association, review.user.login)) {
+            if (review.state === 'changes_requested') {
+                return Promise.all([
+                    addLabels(context, [labelText.PR_REVISION_NEEDED]),
+                    removeLabels(context, [labelText.PR_AWAITING_REVIEW])
+                ]);
+            }
+            else if (review.state === 'approved') {
+                const pr = context.payload.pull_request;
+                const content = pr.body || '';
+                const commentText = checkDoc(content, '', addLabel, removeLabel);
+                return Promise.all([
+                    commentIssue(context, commentText),
+                    addLabels(context, [labelText.PR_REVISION_NEEDED]),
+                    removeLabels(context, [labelText.PR_AWAITING_REVIEW])
+                ]);
+            }
         }
     });
 
@@ -340,11 +350,17 @@ function openIssue(context) {
  */
 function commentIssue(context, commentText) {
     // create comment
-    return context.octokit.issues.createComment(
-        context.issue({
-            body: commentText
-        })
-    );
+    return new Promise(resolve => {
+        if (!commentText) {
+            resolve();
+            return;
+        }
+        return context.octokit.issues.createComment(
+            context.issue({
+                body: commentText
+            })
+        );
+    });
 }
 
 /**
@@ -403,4 +419,34 @@ async function translateIssue(context, createdIssue) {
  */
 function fixMarkdown(body) {
   return body.replace(/\! \[/g, '![').replace(/\] \(/g, '](')
+}
+
+function checkDoc(content, commentText, addLabelList, removeLabelList) {
+    if (isMissingDocInfo(content)) {
+        if (content.indexOf(text.PR_DOC_LATER) < 0) {
+            commentText += '\n\n' + text.PR_DOC_LAGACY;
+        }
+        else {
+            commentText += text.PR_MISSING_DOC_INFO;
+        }
+    }
+    else {
+        if (content.indexOf('[x] ' + text.PR_DOC_RREADY)) {
+            addLabelList.push(labelText.PR_DOC_READY);
+            removeLabelList.push(labelText.PR_DOC_UNCHANGED);
+            removeLabelList.push(labelText.PR_DOC_LATER);
+        }
+        else if (content.indexOf('[x] ' + text.PR_DOC_UNCHANGED)) {
+            addLabelList.push(labelText.PR_DOC_UNCHANGED);
+            removeLabelList.push(labelText.PR_DOC_READY);
+            removeLabelList.push(labelText.PR_DOC_LATER);
+        }
+        else if (content.indexOf('[x] ' + text.PR_DOC_LATER)) {
+            addLabelList.push(labelText.PR_AWAITING_DOC);
+            removeLabelList.push(labelText.PR_DOC_UNCHANGED);
+            removeLabelList.push(labelText.PR_DOC_READY);
+            commentText += text.PR_AWAITING_DOC;
+        }
+    }
+    return commentText;
 }

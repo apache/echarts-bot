@@ -53,9 +53,21 @@ const PR_OPENED_BY_COMMITTER = PR_OPENED + `
 
 The pull request is marked to be \`PR: author is committer\` because you are a committer of this project.`;
 
-const PR_AWAITING_DOC = `Document changes are required in this PR. Please also make a PR to [apache/echarts-doc](https://github.com/apache/echarts-doc) for document changes and update the issue id in the PR description. When the doc PR is merged, the maintainers will remove the \`PR: awaiting doc\` label.`;
+const PR_DOC_UNCHANGED = `This PR doesn't relate to document changes`;
+const PR_DOC_LATER = `The document should be updated later`;
+const PR_DOC_RREADY = `The document changes have been made`;
 
-const PR_ZRENDER_CHANGED = 'This PR depends on [ZRender](https://github.com/ecomfe/zrender) changes. Please update the ZRender dependency to the latest nightly version including this change, which takes place everyday at 8:00 UTC (16:00 Beijing Time).\nYou can use `npm i zrender@npm:zrender-nightly@dev` to update package.json.\nIf you have any question about this, please leave a comment and we will give you extra help on this.';
+const PR_DOC_LAGACY = `Please make sure this PR has one of the following labels: \`PR: doc ready\`, \`PR: doc awaiting\`, \`PR: doc unchanged\``;
+
+const PR_MISSING_DOC_INFO = `
+
+⚠️ MISSING DOCUMENT INFO: Please make sure one of the document options are checked in this PR's description. Search "Document Info" in the description of this PR. This should be done either by the author or the reviewers of the PR.`;
+
+const PR_AWAITING_DOC = `
+
+Document changes are required in this PR. Please also make a PR to [apache/echarts-doc](https://github.com/apache/echarts-doc) for document changes and update the issue id in the PR description. When the doc PR is merged, the maintainers will remove the \`PR: awaiting doc\` label.`;
+
+const PR_ZRENDER_CHANGED = '\n\nThis PR depends on [ZRender](https://github.com/ecomfe/zrender) changes. Please update the ZRender dependency to the latest nightly version including this change, which takes place everyday at 8:00 UTC (16:00 Beijing Time).\nYou can use `npm i zrender@npm:zrender-nightly@dev` to update package.json.\nIf you have any question about this, please leave a comment and we will give you extra help on this.';
 
 const PR_MERGED =
     `Congratulations! Your PR has been merged. Thanks for your contribution! 👍`;
@@ -102,6 +114,11 @@ module.exports = {
     PR_MERGED,
     PR_OPENED_BY_COMMITTER,
     PR_NOT_MERGED,
+    PR_DOC_UNCHANGED,
+    PR_DOC_LATER,
+    PR_DOC_RREADY,
+    PR_DOC_LAGACY,
+    PR_MISSING_DOC_INFO,
     PR_AWAITING_DOC,
     PR_ZRENDER_CHANGED,
     ISSUE_TAGGED_WAITING_AUTHOR,

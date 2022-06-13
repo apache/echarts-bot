@@ -22,6 +22,8 @@ const PRIORITY_HIGH = 'priority: high';
 
 const PR_AWAITING_REVIEW = 'PR: awaiting review';
 const PR_REVISION_NEEDED = 'PR: revision needed';
+const PR_DOC_READY = 'PR: doc ready';
+const PR_DOC_UNCHANGED = 'PR: doc unchanged';
 const PR_AWAITING_DOC = 'PR: awaiting doc';
 const PR_AUTHOR_IS_COMMITTER = 'PR: author is committer';
 const PR_FIRST_TIME_CONTRIBUTOR = 'PR: first-time contributor';
@@ -47,6 +49,8 @@ module.exports = {
     PRIORITY_HIGH,
     PR_AWAITING_REVIEW,
     PR_REVISION_NEEDED,
+    PR_DOC_READY,
+    PR_DOC_UNCHANGED,
     PR_AWAITING_DOC,
     PR_AUTHOR_IS_COMMITTER,
     PR_FIRST_TIME_CONTRIBUTOR
