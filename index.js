@@ -274,8 +274,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
                 const commentText = checkDoc(content, '', addLabel, removeLabel);
                 return Promise.all([
                     commentIssue(context, commentText),
-                    addLabels(context, [labelText.PR_REVISION_NEEDED]),
-                    removeLabels(context, [labelText.PR_AWAITING_REVIEW])
+                    removeLabels(context, [labelText.PR_AWAITING_REVIEW, labelText.PR_REVISION_NEEDED])
                 ]);
             }
         }
