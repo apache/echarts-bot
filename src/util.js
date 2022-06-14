@@ -1,4 +1,4 @@
-const text = require('./src/text');
+const text = require('./text');
 
 function removeCodeAndComment(body) {
 	return body
