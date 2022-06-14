@@ -188,7 +188,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
 
         const content = context.payload.pull_request.body || '';
 
-        commentText = checkDoc(content, labelList, removeLabelList);
+        commentText = checkDoc(content, commentText, labelList, removeLabelList);
 
         if (content.indexOf('[x] This PR depends on ZRender changes') > -1) {
             commentText += text.PR_ZRENDER_CHANGED;
@@ -431,17 +431,17 @@ function checkDoc(content, commentText, addLabelList, removeLabelList) {
         }
     }
     else {
-        if (content.indexOf('[x] ' + text.PR_DOC_RREADY)) {
+        if (content.indexOf('[x] ' + text.PR_DOC_RREADY) >= 0) {
             addLabelList.push(labelText.PR_DOC_READY);
             removeLabelList.push(labelText.PR_DOC_UNCHANGED);
             removeLabelList.push(labelText.PR_DOC_LATER);
         }
-        else if (content.indexOf('[x] ' + text.PR_DOC_UNCHANGED)) {
+        else if (content.indexOf('[x] ' + text.PR_DOC_UNCHANGED) >= 0) {
             addLabelList.push(labelText.PR_DOC_UNCHANGED);
             removeLabelList.push(labelText.PR_DOC_READY);
             removeLabelList.push(labelText.PR_DOC_LATER);
         }
-        else if (content.indexOf('[x] ' + text.PR_DOC_LATER)) {
+        else if (content.indexOf('[x] ' + text.PR_DOC_LATER) >= 0) {
             addLabelList.push(labelText.PR_AWAITING_DOC);
             removeLabelList.push(labelText.PR_DOC_UNCHANGED);
             removeLabelList.push(labelText.PR_DOC_READY);

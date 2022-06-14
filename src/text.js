@@ -57,7 +57,9 @@ const PR_DOC_UNCHANGED = `This PR doesn't relate to document changes`;
 const PR_DOC_LATER = `The document should be updated later`;
 const PR_DOC_RREADY = `The document changes have been made`;
 
-const PR_DOC_LAGACY = `Please make sure this PR has one of the following labels: \`PR: doc ready\`, \`PR: doc awaiting\`, \`PR: doc unchanged\``;
+const PR_DOC_LAGACY = `To reviewers: If this PR is going to be described in the changelog in the future release, please make sure this PR has one of the following labels: \`PR: doc ready\`, \`PR: doc awaiting\`, \`PR: doc unchanged\`
+
+This message is shown because the PR description doesn't contain the document related template.`;
 
 const PR_MISSING_DOC_INFO = `
 
