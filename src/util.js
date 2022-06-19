@@ -16,18 +16,19 @@ function replaceAll(str, search, replacement) {
 	return str.replace(new RegExp(search, 'g'), replacement);
 }
 
+/**
+ * @param {string} body
+ */
 function isMissingDocInfo(body) {
-    const docOptions = [
-        `[x] ${text.PR_DOC_UNCHANGED}`,
-        `[x] ${text.PR_DOC_LATER}`,
-        `[x] ${text.PR_DOC_RREADY}`
-    ];
-    for (let i = 0; i < docOptions.length; ++i) {
-        if (body.indexOf(docOptions[i]) > -1) {
-            return false;
-        }
+    if (!body) {
+        return true;
     }
-    return true;
+    const docOptions = [
+        text.PR_DOC_UNCHANGED,
+        text.PR_DOC_LATER,
+        text.PR_DOC_READY
+    ].map(opt => `[x] ${opt}`);
+    return !docOptions.some(opt => body.includes(opt));
 }
 
 module.exports = {

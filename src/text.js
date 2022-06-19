@@ -55,9 +55,9 @@ The pull request is marked to be \`PR: author is committer\` because you are a c
 
 const PR_DOC_UNCHANGED = `This PR doesn't relate to document changes`;
 const PR_DOC_LATER = `The document should be updated later`;
-const PR_DOC_RREADY = `The document changes have been made`;
+const PR_DOC_READY = `The document changes have been made`;
 
-const PR_DOC_LAGACY = `To reviewers: If this PR is going to be described in the changelog in the future release, please make sure this PR has one of the following labels: \`PR: doc ready\`, \`PR: doc awaiting\`, \`PR: doc unchanged\`
+const PR_DOC_LEGACY = `To reviewers: If this PR is going to be described in the changelog in the future release, please make sure this PR has one of the following labels: \`PR: doc ready\`, \`PR: awaiting doc\`, \`PR: doc unchanged\`
 
 This message is shown because the PR description doesn't contain the document related template.`;
 
@@ -118,8 +118,8 @@ module.exports = {
     PR_NOT_MERGED,
     PR_DOC_UNCHANGED,
     PR_DOC_LATER,
-    PR_DOC_RREADY,
-    PR_DOC_LAGACY,
+    PR_DOC_READY,
+    PR_DOC_LEGACY,
     PR_MISSING_DOC_INFO,
     PR_AWAITING_DOC,
     PR_ZRENDER_CHANGED,

@@ -420,30 +420,42 @@ function fixMarkdown(body) {
   return body.replace(/\! \[/g, '![').replace(/\] \(/g, '](')
 }
 
+/**
+ * @param {string} content
+ * @param {string} commentText
+ * @param {Array.<string>} addLabelList
+ * @param {Array.<string>} removeLabelList
+ */
 function checkDoc(content, commentText, addLabelList, removeLabelList) {
     if (isMissingDocInfo(content)) {
         if (content.indexOf(text.PR_DOC_LATER) < 0) {
-            commentText += '\n\n' + text.PR_DOC_LAGACY;
+            commentText += '\n\n' + text.PR_DOC_LEGACY;
         }
         else {
             commentText += text.PR_MISSING_DOC_INFO;
         }
     }
     else {
-        if (content.indexOf('[x] ' + text.PR_DOC_RREADY) >= 0) {
+        if (content.indexOf('[x] ' + text.PR_DOC_READY) >= 0) {
             addLabelList.push(labelText.PR_DOC_READY);
-            removeLabelList.push(labelText.PR_DOC_UNCHANGED);
-            removeLabelList.push(labelText.PR_DOC_LATER);
+            removeLabelList.push(
+                labelText.PR_DOC_UNCHANGED,
+                labelText.PR_AWAITING_DOC
+            );
         }
         else if (content.indexOf('[x] ' + text.PR_DOC_UNCHANGED) >= 0) {
             addLabelList.push(labelText.PR_DOC_UNCHANGED);
-            removeLabelList.push(labelText.PR_DOC_READY);
-            removeLabelList.push(labelText.PR_DOC_LATER);
+            removeLabelList.push(
+                labelText.PR_DOC_READY,
+                labelText.PR_AWAITING_DOC
+            );
         }
         else if (content.indexOf('[x] ' + text.PR_DOC_LATER) >= 0) {
             addLabelList.push(labelText.PR_AWAITING_DOC);
-            removeLabelList.push(labelText.PR_DOC_UNCHANGED);
-            removeLabelList.push(labelText.PR_DOC_READY);
+            removeLabelList.push(
+                labelText.PR_DOC_UNCHANGED,
+                labelText.PR_DOC_READY
+            );
             commentText += text.PR_AWAITING_DOC;
         }
     }
