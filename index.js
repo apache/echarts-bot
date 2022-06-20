@@ -57,7 +57,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
     });
 
     app.on(['issues.reopened'], context => {
-        // unlabel invalid & missing-title when reopened by bot or commiters
+        // unlabel invalid & missing-title when reopened by bot or committers
         if (context.payload.issue.user.login !== context.payload.sender.login)  {
             return removeLabels(context, [
                 labelText.INVALID,
@@ -281,7 +281,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
     });
 
     app.onError(e => {
-        logger.error('bot occured an error');
+        logger.error('bot occurred an error');
         logger.error(e);
     });
 }
@@ -347,19 +347,24 @@ function openIssue(context) {
  * @param {import('probot').Context} context
  * @param {string} commentText
  */
-function commentIssue(context, commentText) {
-    // create comment
-    return new Promise(resolve => {
-        if (!commentText) {
-            resolve();
+async function commentIssue(context, commentText) {
+    if (!commentText) {
+        return;
+    }
+    try {
+        if (await hasCommented(context, commentText)) {
+            logger.info('skip current comment as it has been submitted');
             return;
         }
-        return context.octokit.issues.createComment(
+        return await context.octokit.issues.createComment(
             context.issue({
                 body: commentText
             })
         );
-    });
+    } catch (e) {
+        logger.error('failed to comment')
+        logger.error(e);
+    }
 }
 
 /**
@@ -417,7 +422,7 @@ async function translateIssue(context, createdIssue) {
  * @param {string} body
  */
 function fixMarkdown(body) {
-  return body.replace(/\! \[/g, '![').replace(/\] \(/g, '](')
+    return body.replace(/\! \[/g, '![').replace(/\] \(/g, '](');
 }
 
 /**
@@ -460,4 +465,14 @@ function checkDoc(content, commentText, addLabelList, removeLabelList) {
         }
     }
     return commentText;
+}
+
+/**
+ * Check if a comment has submitted
+ * @param {import('probot').Context} context
+ * @param {string} commentText
+ */
+async function hasCommented(context, commentText) {
+    const comments = (await context.octokit.issues.listComments(context.issue())).data;
+    return comments.findIndex(comment => comment.user.type === 'Bot' && comment.body === commentText) > -1;
 }
