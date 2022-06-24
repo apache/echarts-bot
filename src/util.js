@@ -27,7 +27,8 @@ function isMissingDocInfo(body) {
         text.PR_DOC_UNCHANGED,
         text.PR_DOC_LATER,
         text.PR_DOC_READY
-    ].map(opt => `[x] ${opt}`);
+    ].map(opt => `[x] ${opt.toLowerCase()}`);
+    body = body.toLowerCase();
     return !docOptions.some(opt => body.includes(opt));
 }
 
