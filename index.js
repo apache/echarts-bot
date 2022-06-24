@@ -231,8 +231,8 @@ module.exports = (/** @type import('probot').Probot */ app) => {
 
         return Promise.all([
             commentIssue(context, commentText),
-            removeLabels(removeLabel),
-            addLabels(addLabel)
+            removeLabels(context, removeLabel),
+            addLabels(context, addLabel)
         ]);
     });
 
@@ -291,7 +291,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
  * @param {string} labelNames label names to be removed
  */
 function removeLabels(context, labelNames) {
-    return labelNames && Promise.all(
+    return labelNames && labelNames.length && Promise.all(
         labelNames.map(
             label => context.octokit.issues.removeLabel(
                 context.issue({
