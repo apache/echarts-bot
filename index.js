@@ -3,7 +3,12 @@ const text = require('./src/text');
 const labelText = require('./src/label');
 const logger = require('./src/logger');
 const { isCommitter } = require('./src/coreCommitters');
-const { replaceAll, removeHTMLComment, isMissingDocInfo } = require('./src/util');
+const {
+    replaceAll,
+    removeHTMLComment,
+    isMissingDocInfo,
+    isOptionChecked
+} = require('./src/util');
 
 module.exports = (/** @type import('probot').Probot */ app) => {
     app.on(['issues.opened'], async context => {
@@ -148,7 +153,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
         let addLabel;
         if (isCore && !isCommenterAuthor) {
             // add `duplicate` label when a committer comments with the `Duplicate of/with` keyword on the issue
-            if (/Duplicate (of|with) #/i.test(comment.body)) {
+            if (/Duplicated? (of|with) #/i.test(comment.body)) {
                 addLabel = labelText.DUPLICATE;
             }
             else {
@@ -168,17 +173,15 @@ module.exports = (/** @type import('probot').Probot */ app) => {
     });
 
     app.on(['pull_request.opened'], async context => {
-        const isCore = isCommitter(
-            context.payload.pull_request.author_association,
-            context.payload.pull_request.user.login
-        );
+        const pr = context.payload.pull_request;
+        const isCore = isCommitter(pr.author_association, pr.user.login);
         let commentText = isCore
             ? text.PR_OPENED_BY_COMMITTER
             : text.PR_OPENED;
 
         const labelList = [];
         const removeLabelList = [];
-        const isDraft = context.payload.pull_request.draft;
+        const isDraft = pr.draft;
         if (!isDraft) {
             labelList.push(labelText.PR_AWAITING_REVIEW);
         }
@@ -186,11 +189,11 @@ module.exports = (/** @type import('probot').Probot */ app) => {
             labelList.push(labelText.PR_AUTHOR_IS_COMMITTER);
         }
 
-        const content = context.payload.pull_request.body || '';
+        const content = pr.body || '';
 
         commentText = checkDoc(content, commentText, labelList, removeLabelList);
 
-        if (content.indexOf('[x] This PR depends on ZRender changes') > -1) {
+        if (content.toLowerCase().includes('[x] This PR depends on ZRender changes'.toLowerCase())) {
             commentText += text.PR_ZRENDER_CHANGED;
         }
 
@@ -274,7 +277,10 @@ module.exports = (/** @type import('probot').Probot */ app) => {
                 const commentText = checkDoc(content, '', addLabel, removeLabel);
                 return Promise.all([
                     commentIssue(context, commentText),
-                    removeLabels(context, [labelText.PR_AWAITING_REVIEW, labelText.PR_REVISION_NEEDED])
+                    removeLabels(context, [
+                        labelText.PR_AWAITING_REVIEW,
+                        labelText.PR_REVISION_NEEDED
+                    ])
                 ]);
             }
         }
@@ -433,7 +439,7 @@ function fixMarkdown(body) {
  */
 function checkDoc(content, commentText, addLabelList, removeLabelList) {
     if (isMissingDocInfo(content)) {
-        if (content.indexOf(text.PR_DOC_LATER) < 0) {
+        if (!content.includes(text.PR_DOC_LATER)) {
             commentText += '\n\n' + text.PR_DOC_LEGACY;
         }
         else {
@@ -441,21 +447,21 @@ function checkDoc(content, commentText, addLabelList, removeLabelList) {
         }
     }
     else {
-        if (content.indexOf('[x] ' + text.PR_DOC_READY) >= 0) {
+        if (isOptionChecked(content, text.PR_DOC_READY)) {
             addLabelList.push(labelText.PR_DOC_READY);
             removeLabelList.push(
                 labelText.PR_DOC_UNCHANGED,
                 labelText.PR_AWAITING_DOC
             );
         }
-        else if (content.indexOf('[x] ' + text.PR_DOC_UNCHANGED) >= 0) {
+        else if (isOptionChecked(content, text.PR_DOC_UNCHANGED)) {
             addLabelList.push(labelText.PR_DOC_UNCHANGED);
             removeLabelList.push(
                 labelText.PR_DOC_READY,
                 labelText.PR_AWAITING_DOC
             );
         }
-        else if (content.indexOf('[x] ' + text.PR_DOC_LATER) >= 0) {
+        else if (isOptionChecked(content, text.PR_DOC_LATER)) {
             addLabelList.push(labelText.PR_AWAITING_DOC);
             removeLabelList.push(
                 labelText.PR_DOC_UNCHANGED,

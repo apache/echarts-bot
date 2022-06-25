@@ -32,9 +32,18 @@ function isMissingDocInfo(body) {
     return !docOptions.some(opt => body.includes(opt));
 }
 
+/**
+ * @param {string} content
+ * @param {string} option
+ */
+function isOptionChecked(content, option) {
+    return content && option && content.toLowerCase().includes('[x] ' + option.toLowerCase());
+}
+
 module.exports = {
 	removeCodeAndComment,
     removeHTMLComment,
     replaceAll,
-    isMissingDocInfo
+    isMissingDocInfo,
+    isOptionChecked
 };
