@@ -503,11 +503,14 @@ async function hasCommented(context, commentText) {
  *
  * @param {Context} context
  * @param {string} commentText
- * @param {ReportedContentClassifiers} classifier
+ * @param {ReportedContentClassifiers?} classifier
  */
 async function minimizeComment(context, commentText, classifier) {
     const comments = (await context.octokit.issues.listComments(context.issue())).data;
     const comment = comments.find(comment => comment.user.type === 'Bot' && comment.body === commentText);
+    if (!comment) {
+        return;
+    }
     try {
         const res = await context.octokit.graphql(
             `
