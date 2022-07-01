@@ -9,8 +9,14 @@ const {
     isMissingDocInfo,
     isOptionChecked
 } = require('./src/util');
+const { GraphqlResponseError } = require('@octokit/graphql');
 
-module.exports = (/** @type import('probot').Probot */ app) => {
+/**
+ * @typedef {import('probot').Probot} Probot
+ * @typedef {import('probot').Context} Context
+ */
+
+module.exports = (/** @type {Probot} */ app) => {
     app.on(['issues.opened'], async context => {
         const issue = new Issue(context);
 
@@ -61,13 +67,15 @@ module.exports = (/** @type import('probot').Probot */ app) => {
         }
     });
 
-    app.on(['issues.reopened'], context => {
+    app.on(['issues.reopened'], async context => {
         // unlabel invalid & missing-title when reopened by bot or committers
-        if (context.payload.issue.user.login !== context.payload.sender.login)  {
-            return removeLabels(context, [
+        if (context.payload.issue.user.login !== context.payload.sender.login) {
+            await removeLabels(context, [
                 labelText.INVALID,
                 labelText.MISSING_TITLE
             ]);
+            minimizeComment(context, text.MISSING_TITLE);
+            minimizeComment(context, text.NOT_USING_TEMPLATE);
         }
     });
 
@@ -293,7 +301,7 @@ module.exports = (/** @type import('probot').Probot */ app) => {
 }
 
 /**
- * @param {import('probot').Context} context
+ * @param {Context} context
  * @param {string} labelNames label names to be removed
  */
 function removeLabels(context, labelNames) {
@@ -314,7 +322,7 @@ function removeLabels(context, labelNames) {
 }
 
 /**
- * @param {import('probot').Context} context
+ * @param {Context} context
  * @param {Array<string>} labelNames label names to be added
  */
 function addLabels(context, labelNames) {
@@ -326,7 +334,7 @@ function addLabels(context, labelNames) {
 }
 
 /**
- * @param {import('probot').Context} context
+ * @param {Context} context
  */
 function closeIssue(context) {
     // close issue
@@ -338,7 +346,7 @@ function closeIssue(context) {
 }
 
 /**
- * @param {import('probot').Context} context
+ * @param {Context} context
  */
 function openIssue(context) {
     // open issue
@@ -350,7 +358,7 @@ function openIssue(context) {
 }
 
 /**
- * @param {import('probot').Context} context
+ * @param {Context} context
  * @param {string} commentText
  */
 async function commentIssue(context, commentText) {
@@ -374,7 +382,7 @@ async function commentIssue(context, commentText) {
 }
 
 /**
- * @param {import('probot').Context} context
+ * @param {Context} context
  */
 async function isFirstTimeContributor(context) {
     try {
@@ -393,7 +401,7 @@ async function isFirstTimeContributor(context) {
 }
 
 /**
- * @param {import('probot').Context} context
+ * @param {Context} context
  * @param {Issue} createdIssue
  */
 async function translateIssue(context, createdIssue) {
@@ -475,10 +483,56 @@ function checkDoc(content, commentText, addLabelList, removeLabelList) {
 
 /**
  * Check if a comment has submitted
- * @param {import('probot').Context} context
+ * @param {Context} context
  * @param {string} commentText
  */
 async function hasCommented(context, commentText) {
     const comments = (await context.octokit.issues.listComments(context.issue())).data;
     return comments.findIndex(comment => comment.user.type === 'Bot' && comment.body === commentText) > -1;
+}
+
+/**
+ * PENDING import from @octokit/graphql-schema?
+ * @typedef {'SPAM'|'ABUSE'|'OFF_TOPIC'|'OUTDATED'|'DUPLICATE'|'RESOLVED'} ReportedContentClassifiers
+ */
+
+/**
+ * Minimize a comment with specified classifier
+ *
+ * FIXME: unlike hiding via the UI, it doesn't show the classifier in the information
+ *
+ * @param {Context} context
+ * @param {string} commentText
+ * @param {ReportedContentClassifiers} classifier
+ */
+async function minimizeComment(context, commentText, classifier) {
+    const comments = (await context.octokit.issues.listComments(context.issue())).data;
+    const comment = comments.find(comment => comment.user.type === 'Bot' && comment.body === commentText);
+    try {
+        const res = await context.octokit.graphql(
+            `
+                mutation minimizeComment($id: ID!, $classifier: ReportedContentClassifiers!) {
+                    minimizeComment(input: { subjectId: $id, classifier: $classifier }) {
+                        clientMutationId
+                        minimizedComment {
+                            isMinimized
+                            minimizedReason
+                            viewerCanMinimize
+                        }
+                    }
+                }
+            `,
+            {
+                id: comment.node_id,
+                classifier: classifier || 'OUTDATED'
+            }
+        );
+        logger.info('minimize comment result: \n' + JSON.stringify(res, null, 2));
+    } catch (e) {
+        if (e instanceof GraphqlResponseError) {
+            logger.error('Graphql Request Failed');
+            logger.error(JSON.stringify(e.request, null, 2));
+        }
+        logger.error(e);
+    }
 }
