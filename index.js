@@ -14,6 +14,8 @@ const { GraphqlResponseError } = require('@octokit/graphql');
 /**
  * @typedef {import('probot').Probot} Probot
  * @typedef {import('probot').Context} Context
+ * @typedef {import('@octokit/graphql-schema').ReportedContentClassifiers} ReportedContentClassifiers
+ * @typedef {import('@octokit/graphql-schema').IssueClosedStateReason} IssueClosedStateReason
  */
 
 module.exports = (/** @type {Probot} */ app) => {
@@ -134,7 +136,7 @@ module.exports = (/** @type {Probot} */ app) => {
             case labelText.RESOLVED:
             case labelText.DUPLICATE:
                 return Promise.all([
-                    closeIssue(context),
+                    closeIssue(context, labelName === labelText.RESOLVED),
                     removeLabels(context, [labelText.WAITING_FOR_COMMUNITY])
                 ]);
 
@@ -335,14 +337,40 @@ function addLabels(context, labelNames) {
 
 /**
  * @param {Context} context
+ * @param {boolean?} completed
  */
-function closeIssue(context) {
+async function closeIssue(context, completed) {
     // close issue
-    return context.octokit.issues.update(
-        context.issue({
-            state: 'closed'
-        })
+    // return await context.octokit.issues.update(
+    //     context.issue({
+    //         state: 'closed'
+    //     })
+    // );
+    // use GraphQL to close the issue with specified reason
+    const res = await context.octokit.graphql(
+        `
+            mutation closeIssue($id: ID!, $reason: IssueClosedStateReason) {
+                closeIssue(input: { issueId: $id, stateReason: $reason }) {
+                    clientMutationId
+                    issue {
+                        number
+                        closed
+                        state
+                        stateReason
+                    }
+                }
+            }
+        `,
+        {
+            id: context.payload.issue.node_id,
+            /**
+             * @type {IssueClosedStateReason}
+             */
+            reason: completed ? 'COMPLETED' : 'NOT_PLANNED'
+        }
     );
+    logger.info('close issue result: \n' + JSON.stringify(res, null, 2));
+    return res;
 }
 
 /**
@@ -492,11 +520,6 @@ async function hasCommented(context, commentText) {
 }
 
 /**
- * PENDING import from @octokit/graphql-schema?
- * @typedef {'SPAM'|'ABUSE'|'OFF_TOPIC'|'OUTDATED'|'DUPLICATE'|'RESOLVED'} ReportedContentClassifiers
- */
-
-/**
  * Minimize a comment with specified classifier
  *
  * FIXME: unlike hiding via the UI, it doesn't show the classifier in the information
@@ -533,7 +556,7 @@ async function minimizeComment(context, commentText, classifier) {
         logger.info('minimize comment result: \n' + JSON.stringify(res, null, 2));
     } catch (e) {
         if (e instanceof GraphqlResponseError) {
-            logger.error('Graphql Request Failed');
+            logger.error('GraphQL Request Failed');
             logger.error(JSON.stringify(e.request, null, 2));
         }
         logger.error(e);
