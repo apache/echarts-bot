@@ -341,36 +341,38 @@ function addLabels(context, labelNames) {
  */
 async function closeIssue(context, completed) {
     // close issue
-    // return await context.octokit.issues.update(
-    //     context.issue({
-    //         state: 'closed'
-    //     })
-    // );
-    // use GraphQL to close the issue with specified reason
-    const res = await context.octokit.graphql(
-        `
-            mutation closeIssue($id: ID!, $reason: IssueClosedStateReason) {
-                closeIssue(input: { issueId: $id, stateReason: $reason }) {
-                    clientMutationId
-                    issue {
-                        number
-                        closed
-                        state
-                        stateReason
-                    }
-                }
-            }
-        `,
-        {
-            id: context.payload.issue.node_id,
-            /**
-             * @type {IssueClosedStateReason}
-             */
-            reason: completed ? 'COMPLETED' : 'NOT_PLANNED'
-        }
+    return await context.octokit.issues.update(
+        context.issue({
+            state: 'closed',
+            // PENDING: not list in the documentation
+            state_reason: completed ? 'completed' : 'not_planned'
+        })
     );
-    logger.info('close issue result: \n' + JSON.stringify(res, null, 2));
-    return res;
+    // use GraphQL to close the issue with specified reason
+    // const res = await context.octokit.graphql(
+    //     `
+    //         mutation closeIssue($id: ID!, $reason: IssueClosedStateReason) {
+    //             closeIssue(input: { issueId: $id, stateReason: $reason }) {
+    //                 clientMutationId
+    //                 issue {
+    //                     number
+    //                     closed
+    //                     state
+    //                     stateReason
+    //                 }
+    //             }
+    //         }
+    //     `,
+    //     {
+    //         id: context.payload.issue.node_id,
+    //         /**
+    //          * @type {IssueClosedStateReason}
+    //          */
+    //         reason: completed ? 'COMPLETED' : 'NOT_PLANNED'
+    //     }
+    // );
+    // logger.info('close issue result: \n' + JSON.stringify(res, null, 2));
+    // return res;
 }
 
 /**
