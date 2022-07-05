@@ -392,6 +392,7 @@ function openIssue(context) {
  * @param {string} commentText
  */
 async function commentIssue(context, commentText) {
+    commentText = commentText && commentText.trim();
     if (!commentText) {
         return;
     }
@@ -518,7 +519,11 @@ function checkDoc(content, commentText, addLabelList, removeLabelList) {
  */
 async function hasCommented(context, commentText) {
     const comments = (await context.octokit.issues.listComments(context.issue())).data;
-    return comments.findIndex(comment => comment.user.type === 'Bot' && comment.body === commentText) > -1;
+    return comments.findIndex(comment =>
+        comment.user.type === 'Bot'
+        && comment.body
+        && comment.body.replace(/\r\n/g, '\n').includes(commentText)
+    ) > -1;
 }
 
 /**
