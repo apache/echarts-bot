@@ -21,7 +21,7 @@
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
-    "@plainheart/google-translate-api": "^1.1.0",
+    "@plainheart/google-translate-api": "^1.2.0",
     "bing-translate-api": "^2.6.0",
     "franc-min": "^5.0.0",
     "probot": "^12.2.5"
