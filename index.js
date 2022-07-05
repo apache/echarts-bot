@@ -35,11 +35,19 @@ module.exports = (/** @type {Probot} */ app) => {
         const invalid = issue.addLabels.includes(labelText.INVALID)
             || issue.addLabels.includes(labelText.MISSING_TITLE);
 
-        // translate finally if valid
-        return invalid || translateIssue(context, issue);
+        if (!invalid) {
+            // update title
+            issue.isTitleChanged && await updateIssueTitle(context, issue.title);
+            // translate finally if valid
+            await translateIssue(context, issue);
+        }
     });
 
     app.on(['issues.edited'], async context => {
+        if (context.payload.sender.type === 'Bot') {
+            logger.info('skip to handle current `issues.edited` event as it is from bot');
+            return;
+        }
         const ctxIssue = context.payload.issue;
         const labels = ctxIssue.labels;
         if (labels && labels.findIndex(label => label.name === labelText.MISSING_TITLE) > -1) {
@@ -55,8 +63,10 @@ module.exports = (/** @type {Probot} */ app) => {
                     await addLabels(context, issue.addLabels);
                     // reopen issue
                     await openIssue(context);
+                    // update title
+                    issue.isTitleChanged && await updateIssueTitle(context, issue.title);
                     // translate
-                    translateIssue(context, issue);
+                    await translateIssue(context, issue);
                 }
             }
         }
@@ -383,6 +393,18 @@ function openIssue(context) {
     return context.octokit.issues.update(
         context.issue({
             state: 'open'
+        })
+    );
+}
+
+/**
+ * @param {Context} context
+ * @param {string} title
+ */
+function updateIssueTitle(context, title) {
+    return context.octokit.issues.update(
+        context.issue({
+            title
         })
     );
 }

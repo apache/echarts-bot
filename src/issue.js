@@ -3,12 +3,19 @@ const { isCommitter } = require('./coreCommitters');
 const { translate } = require('./translator');
 const { removeHTMLComment } = require('./util');
 
+/**
+ * @typedef {import('probot').Context<'issues.opened'>} Context
+ */
+
 class Issue {
+    /**
+     * @param {Context} context
+     */
     constructor(context) {
         this.context = context;
         this.issue = context.payload.issue;
         this.title = this.issue.title;
-        this.body = this.issue.body;
+        this.body = this.issue.body || '';
         // null -> failed to translate -> unknown language
         // false -> translated -> not in English
         this.translatedTitle = null;
@@ -23,6 +30,13 @@ class Issue {
         const isCore = isCommitter(this.issue.author_association, this.issue.user.login);
 
         if (!isCore) {
+            // TODO if neither [bug] nor [feature] in title?
+            this.title = this.title.replace(
+                /(.*)(\[(?:bug|feature)\])(.*)/i,
+                function (match, p1, p2, p3) {
+                    return p2 + ' ' + p1.trim() + p3.trim()
+                }
+            );
             // check if the title is valid
             if (this.isMissingTitle()) {
                 this.addLabels.push(label.MISSING_TITLE);
@@ -60,13 +74,17 @@ class Issue {
     }
 
     isUsingTemplate() {
-        return this.body.indexOf('Steps to Reproduce') > -1
-            || this.body.indexOf('What problem does this feature solve') > - 1;
+        return this.body.includes('Steps to Reproduce')
+            || this.body.includes('What problem does this feature solve');
     }
 
     isMissingTitle() {
         const title = this.title.trim()
         return !title || !title.toLowerCase().replace('[bug]', '').replace('[feature]', '');
+    }
+
+    isTitleChanged() {
+        return this.title !== this.issue.title;
     }
 }
 
