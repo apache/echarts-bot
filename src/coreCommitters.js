@@ -14,7 +14,8 @@ const committers = [
     'alex2wong',
     'ClemMakesApps',
     'fuchunhui',
-    'lefex'
+    'lefex',
+    'jiawulin001'
 ];
 
 function getCoreCommitters() {
