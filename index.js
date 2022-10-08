@@ -243,8 +243,11 @@ module.exports = (/** @type {Probot} */ app) => {
         const addLabel = [];
         const removeLabel = [];
 
-        if (isOpen) {
-            (pr.draft ? removeLabel : addLabel).push(labelText.PR_AWAITING_REVIEW);
+        if (pr.draft) {
+            removeLabel.push(labelText.PR_AWAITING_REVIEW);
+        }
+        else if (isOpen) {
+            addLabel.push(labelText.PR_AWAITING_REVIEW);
         }
 
         const content = pr.body || '';
