@@ -237,9 +237,13 @@ module.exports = (/** @type {Probot} */ app) => {
     });
 
     app.on(['pull_request.edited'], async context => {
+        const pr = context.payload.pull_request;
+        if (pr.state === 'closed') {
+            return;
+        }
+
         const addLabel = [];
         const removeLabel = [];
-        const pr = context.payload.pull_request;
 
         if (pr.draft) {
             removeLabel.push(labelText.PR_AWAITING_REVIEW);
