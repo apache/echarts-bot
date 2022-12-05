@@ -21,3 +21,8 @@ github:
   labels:
     - echarts
     - apache
+
+notifications:
+    commits: commits@echarts.apache.org
+    pullrequests: commits@echarts.apache.org
+    issues: commits@echarts.apache.org

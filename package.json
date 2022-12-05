@@ -23,17 +23,17 @@
   "dependencies": {
     "@plainheart/google-translate-api": "^1.2.0",
     "bing-translate-api": "^2.6.0",
-    "franc-min": "^5.0.0",
-    "probot": "^12.2.5"
+    "franc-min": "5.0.0",
+    "probot": "^12.2.8"
   },
   "devDependencies": {
-    "@octokit/graphql-schema": "^10.74.1",
+    "@octokit/graphql-schema": "^12.34.0",
     "jest": "^25.0.0",
     "nock": "^12.0.0",
-    "nodemon": "^2.0.16",
+    "nodemon": "^2.0.20",
     "smee-client": "^1.2.3",
     "standard": "^14.3.1",
-    "winston": "^3.7.2",
+    "winston": "^3.8.2",
     "winston-daily-rotate-file": "^4.7.1"
   },
   "engines": {
