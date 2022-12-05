@@ -23,7 +23,7 @@
   "dependencies": {
     "@plainheart/google-translate-api": "^1.2.0",
     "bing-translate-api": "^2.6.0",
-    "franc-min": "5.0.0",
+    "franc-min": "6.1.0",
     "probot": "^12.2.8"
   },
   "devDependencies": {
