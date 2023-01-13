@@ -37,7 +37,7 @@
     "winston-daily-rotate-file": "^4.7.1"
   },
   "engines": {
-    "node": ">=10.21"
+    "node": ">=12"
   },
   "standard": {
     "env": [
