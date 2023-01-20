@@ -22,9 +22,9 @@
   },
   "dependencies": {
     "@plainheart/google-translate-api": "^1.2.0",
-    "bing-translate-api": "^2.7.0",
+    "bing-translate-api": "^2.8.0",
     "franc-min": "5.0.0",
-    "probot": "^12.2.9"
+    "probot": "^12.3.0"
   },
   "devDependencies": {
     "@octokit/graphql-schema": "^12.34.0",
