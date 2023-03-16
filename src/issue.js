@@ -31,7 +31,7 @@ class Issue {
 
         if (!isCore) {
             // TODO if neither [bug] nor [feature] in title?
-            this.title = this.title.replace(
+            this.title = (this.title || '').replace(
                 /(.*)(\[(?:bug|feature)\])(.*)/i,
                 function (match, p1, p2, p3) {
                     return p2 + ' ' + p1.trim() + p3.trim()
@@ -79,7 +79,7 @@ class Issue {
     }
 
     isMissingTitle() {
-        const title = this.title.trim()
+        const title = this.title.trim();
         return !title || !title.toLowerCase().replace('[bug]', '').replace('[feature]', '');
     }
 
