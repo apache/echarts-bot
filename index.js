@@ -275,11 +275,20 @@ module.exports = (/** @type {Probot} */ app) => {
                 labelText.PR_AWAITING_REVIEW
             ])
         ];
-        const isMerged = context.payload.pull_request.merged;
-        if (isMerged) {
+        const pr = context.payload.pull_request;
+        if (pr.merged) {
             actions.push(commentIssue(context, text.PR_MERGED));
         }
-        return Promise.all(actions);
+        // delete created branch by bot
+        if (pr.head.ref.includes('update-notice-year') && pr.user.type == 'Bot') {
+            const deleteBranch = context.octokit.git.deleteRef(
+                context.repo({
+                    ref: 'heads/' + pr.head.ref
+                })
+            );
+            actions.push(deleteBranch);
+        }
+        return Promise.allSettled(actions);
     });
 
     app.on(['pull_request_review.submitted'], async context => {
