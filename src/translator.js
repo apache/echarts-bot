@@ -1,5 +1,5 @@
 const googleTranslate = require('@plainheart/google-translate-api');
-const { translate: bingTranslate } = require('bing-translate-api');
+const { translate: bingTranslate, MET: { translate: bingTranslateMET } } = require('bing-translate-api');
 const franc = require('franc-min');
 const logger = require('./logger');
 
@@ -41,6 +41,21 @@ async function translateByBing(rawContent) {
     }
 }
 
+async function translateByBingMET(rawContent) {
+    try {
+        const [res] = await bingTranslateMET(rawContent);
+        return {
+            translated: res.translations[0].text,
+            lang: res.detectedLanguage.language,
+            translator: 'bingMET'
+        };
+    }
+    catch (e) {
+        logger.error('failed to translate by bing MET');
+        logger.error(e);
+    }
+}
+
 /**
  * To translate the raw sentence to English
  * @param  {string} rawContent sentence to be translated
@@ -50,7 +65,7 @@ async function translate(rawContent) {
     if (!rawContent || !(rawContent = rawContent.trim())) {
         return;
     }
-    const translators = [translateByGoogle, translateByBing];
+    const translators = [translateByGoogle, translateByBing, translateByBingMET];
     const randomIdx = ~~(Math.random() * translators.length);
     let res = await translators[randomIdx](rawContent);
     if (!res) {
