@@ -16,7 +16,8 @@ const committers = [
     'fuchunhui',
     'lefex',
     'jiawulin001',
-    'linghaoSu'
+    'linghaoSu',
+    'sz-p'
 ];
 
 function getCoreCommitters() {
