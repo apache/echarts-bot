@@ -24,7 +24,7 @@
     "@plainheart/google-translate-api": "^1.2.0",
     "bing-translate-api": "^4.0.1",
     "franc-min": "5.0.0",
-    "probot": "^12.3.3"
+    "probot": "^13.4.3"
   },
   "devDependencies": {
     "@octokit/graphql": "^7.0.2",
