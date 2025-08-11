@@ -12,10 +12,7 @@ describe('My Probot app', () => {
   let probot
 
   beforeEach(() => {
-    probot = new Probot({
-        appId: 123456,
-        privateKey: 'test'
-    })
+    probot = new Probot({})
     // Load our app into probot
     const app = probot.load(myProbotApp)
 

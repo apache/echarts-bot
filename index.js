@@ -279,7 +279,7 @@ module.exports = (/** @type {Probot} */ app) => {
         if (pr.merged) {
             actions.push(commentIssue(context, text.PR_MERGED));
         }
-        // delete created branch by bot
+        // delete created branch by bot (requires contents.write permission)
         if (pr.head.ref.includes('update-notice-year') && pr.user.type == 'Bot') {
             const deleteBranch = context.octokit.git.deleteRef(
                 context.repo({
