@@ -8,8 +8,7 @@ const drfTransport = new transports.DailyRotateFile({
     datePattern: 'YYYY-MM-DD',
     maxSize: '1m',
     maxFiles: '30d',
-    createSymlink: true,
-    zippedArchive: true
+    createSymlink: true
 });
 
 const errorStackHandler = format(e => {
