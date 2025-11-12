@@ -197,7 +197,7 @@ module.exports = (/** @type {Probot} */ app) => {
         const isCore = isCommitter(pr.author_association, pr.user.login);
         let commentText = isCore
             ? text.PR_OPENED_BY_COMMITTER
-            : text.PR_OPENED;
+            : text.PR_OPENED + text.PR_DO_NOT_COMMIT_DIST_FILES;
 
         const labelList = [];
         const removeLabelList = [];

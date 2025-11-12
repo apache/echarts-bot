@@ -71,6 +71,8 @@ Document changes are required in this PR. Please also make a PR to [apache/echar
 
 const PR_ZRENDER_CHANGED = '\n\nThis PR depends on [ZRender](https://github.com/ecomfe/zrender) changes. Please update the ZRender dependency to the latest nightly version including this change, which takes place everyday at 8:00 UTC (16:00 Beijing Time).\nYou can use `npm i zrender@npm:zrender-nightly@dev` to update package.json.\nIf you have any question about this, please leave a comment and we will give you extra help on this.';
 
+const PR_DO_NOT_COMMIT_DIST_FILES = `\n\nPlease **DO NOT** commit the files in [dist](https://github.com/apache/echarts/tree/master/dist), [i18n](https://github.com/apache/echarts/tree/master/i18n), and [ssr/client/dist](https://github.com/apache/echarts/tree/master/ssr/client/dist) folders in a non-release pull request. These folders are for release use only.`
+
 const PR_MERGED =
     `Congratulations! Your PR has been merged. Thanks for your contribution! 👍`;
 
@@ -115,6 +117,7 @@ module.exports = {
     LABEL_HOWTO,
     PR_MERGED,
     PR_OPENED_BY_COMMITTER,
+    PR_DO_NOT_COMMIT_DIST_FILES,
     PR_NOT_MERGED,
     PR_DOC_UNCHANGED,
     PR_DOC_LATER,
