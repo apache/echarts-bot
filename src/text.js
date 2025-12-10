@@ -95,7 +95,7 @@ For (1), we have decided to use the GitHub issue lists exclusively for work that
 For (2), we have found that issues that do not provide proper information upfront usually results in terribly inefficient back-and-forth communication just to extract the basic information needed for actual triaging. This is exactly why we have created this app: to ensure that every issue is created with the necessary information, and to save time on both sides.`;
 
 const ISSUE_COMMENT_TRANSLATE_TIP =
-    'AT_ISSUE_AUTHOR It seems you are not using English, I\'ve helped translate the content automatically. To make your issue understood by more people and get helped, we\'d like to suggest using English next time. 🤗';
+    'AT_ISSUE_AUTHOR Looks like you haven\'t used English for your query - I\'ve automatically translated the content for you! 😊 To help more people understand your issue and get you faster assistance, we\'d suggest using English next time if possible. Thanks for your understanding! 🤗';
 
 const MISSING_TITLE =
     `I'm sorry to close this issue for it lacks the necessary title. Please provide **a _descriptive_ and as _concise_ as possible title to describe your problems or requests** and then the maintainers or I will reopen this issue.
