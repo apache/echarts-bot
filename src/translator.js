@@ -11,8 +11,9 @@ async function translateByGoogle(rawContent) {
                 to: 'en',
                 // tld: 'cn',
                 // not use website & dictExt endpoint
-                endpoints: ['api'],
-                randomEndpoint: true
+                endpoints: ['chrome', 'api'],
+                randomEndpoint: true,
+                endpointFallback: true
             }
         );
         return {
